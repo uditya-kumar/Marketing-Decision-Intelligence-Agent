@@ -45,6 +45,10 @@ _DETECTORS: dict[str, tuple[Detector, ...]] = {
 }
 # Ground truth reports what the platform stopped counting; MDIA reports the break itself.
 _UNTRACKED_METRICS = frozenset({"platform_conversions", "platform_roas", "platform_revenue"})
+# Whether the scenario should surface as something wrong or something to buy more of.
+# A tired creative that happens to sit in a campaign having a good week is not detected
+# by that good week, so the alert has to be of the right kind to count.
+_KINDS: dict[str, str] = {"channel_opportunity": "win"}
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,6 +63,8 @@ class Event:
     entities: frozenset[str]
     metrics: frozenset[str]
     detectors: frozenset[str]
+    # The opportunity kind an alert must have to count as this scenario.
+    kind_expected: str
     expected_signal_type: str | None
     expected_action: str | None
 
@@ -85,6 +91,7 @@ def _event(raw: dict[str, Any], lineage: Mapping[str, Sequence[str]]) -> Event:
         entities=frozenset(entities),
         metrics=frozenset(listed | set(_EXTRA_METRICS.get(kind, ()))),
         detectors=frozenset(_DETECTORS.get(kind, ())),
+        kind_expected=_KINDS.get(kind, "issue"),
         expected_signal_type=raw["expected_signal_type"],
         expected_action=raw["expected_action"],
     )

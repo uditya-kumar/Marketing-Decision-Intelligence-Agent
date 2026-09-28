@@ -33,17 +33,17 @@ def _detection_lines(result: Score, runs: Sequence[Run]) -> Iterator[str]:
     yield f"Alerts raised: {result.episodes}"
     yield ""
     yield (
-        f"{'Detected within 3 days':<26}{_pct(quick)}  "
-        f"{_verdict(quick >= TARGET_RECALL)}  (section 13)"
+        f"{'Detected within 3 days':<26}{pct(quick)}  "
+        f"{verdict(quick >= TARGET_RECALL)}  (section 13)"
     )
     seen = f"{len(result.detected)} of {result.injected}"
-    yield f"{'Detected at all':<26}{_pct(result.recall)}  {seen}"
-    yield f"{'Precision':<26}{_pct(result.precision)}"
+    yield f"{'Detected at all':<26}{pct(result.recall)}  {seen}"
+    yield f"{'Precision':<26}{pct(result.precision)}"
     yield f"{'F1':<26}{result.f1:.2f}"
     yield (
-        f"{'False alarms':<26}{_pct(result.false_alarm_rate)} of "
+        f"{'False alarms':<26}{pct(result.false_alarm_rate)} of "
         f"{result.quiet_windows} no-issue windows  "
-        f"{_verdict(result.false_alarm_rate < TARGET_FALSE_ALARM)}  (section 13)"
+        f"{verdict(result.false_alarm_rate < TARGET_FALSE_ALARM)}  (section 13)"
     )
     if result.suppressed:
         yield f"{'Quiet by design':<26}{len(result.suppressed)} scenarios inside a festive window"
@@ -59,7 +59,7 @@ def _detection_lines(result: Score, runs: Sequence[Run]) -> Iterator[str]:
     within = result.recall_by_kind(TARGET_DAYS_TO_DETECT)
     for kind, (hit, total) in result.recall_by_kind().items():
         fast = within[kind][0]
-        yield f"  {kind:<24}{f'{fast}/{total}':<12}{f'{hit}/{total}':<12}{_pct(hit / total)}"
+        yield f"  {kind:<24}{f'{fast}/{total}':<12}{f'{hit}/{total}':<12}{pct(hit / total)}"
     if result.missed:
         yield ""
         yield "Missed"
@@ -93,9 +93,9 @@ def false_positives(result: Score, top: int = 15) -> str:
     return "\n".join(lines)
 
 
-def _pct(value: float) -> str:
+def pct(value: float) -> str:
     return f"{value * 100:.0f}%"
 
 
-def _verdict(passed: bool) -> str:
+def verdict(passed: bool) -> str:
     return "PASS" if passed else "FAIL"

@@ -35,6 +35,9 @@ yarn-error.log*
 # ---- Generator output (synthetic CSVs + ground truth) ----
 generator/output/
 
+# ---- Evaluation output (scorecards + thesis figures) ----
+evaluation/output/
+
 # ---- Local tooling config ----
 .claude/settings.local.json
 

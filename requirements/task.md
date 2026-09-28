@@ -163,12 +163,12 @@ Every screen gets its empty, loading and error states when it is built, not in a
 
 ## Phase 10 — Evaluation (FR-16)
 
-- [ ] **10.1** Detection report: precision, recall, F1 and days-to-detect per scenario; false positives in no-issue windows.
-- [ ] **10.2** Diagnosis report: top-1 / top-3 accuracy, LLM vs rules.
-- [ ] **10.3** Trust report: tracking-break accuracy and whether suppression was correct.
-- [ ] **10.4** Grounding report: violation rate before and after the guard (from `llm_calls`).
+- [x] **10.1** Detection report: precision, recall, F1 and days-to-detect per scenario; false positives in no-issue windows.
+- [x] **10.2** Diagnosis report: top-1 / top-3 accuracy, LLM vs rules.
+- [x] **10.3** Trust report: tracking-break accuracy and whether suppression was correct.
+- [x] **10.4** Grounding report: violation rate before and after the guard (from `llm_calls`).
 - [ ] **10.5** *(optional)* Baseline: the same CSVs given to a plain LLM prompt, scored the same way.
-- [ ] **10.6** `report.py` → tables and plots for the thesis.
+- [x] **10.6** `report.py` → tables and plots for the thesis.
   Done when: every §13 criterion is reported with numbers.
 
 ---

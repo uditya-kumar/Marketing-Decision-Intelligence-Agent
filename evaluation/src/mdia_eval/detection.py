@@ -49,6 +49,8 @@ class Episode:
         """Whether this episode is MDIA's version of ``event``."""
         if not self.window.overlaps(event.window):
             return False
+        if self.kind != event.kind_expected:
+            return False
         if event.entities and self.entity not in event.entities:
             return False
         if event.detectors:
