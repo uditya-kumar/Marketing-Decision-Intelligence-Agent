@@ -11,6 +11,8 @@ from mdia.db.session import get_session
 from mdia.services.ingestion import IngestionService
 from mdia.services.metrics import MetricsService
 from mdia.services.settings import SettingsService
+from mdia.services.today import TodayService
+from mdia.services.trust import TrustService
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -34,3 +36,17 @@ def get_metrics_service(session: SessionDep) -> MetricsService:
 
 
 MetricsServiceDep = Annotated[MetricsService, Depends(get_metrics_service)]
+
+
+def get_trust_service(session: SessionDep) -> TrustService:
+    return TrustService(session)
+
+
+TrustServiceDep = Annotated[TrustService, Depends(get_trust_service)]
+
+
+def get_today_service(session: SessionDep) -> TodayService:
+    return TodayService(session)
+
+
+TodayServiceDep = Annotated[TodayService, Depends(get_today_service)]

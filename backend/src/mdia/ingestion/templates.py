@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Literal
 
+from mdia.domain.sources import SOURCE_LABELS
 from mdia.ingestion.parsers import (
     AMOUNT,
     COMPACT_DATE,
@@ -84,7 +85,7 @@ _clicks_within_impressions = at_most("clicks", "impressions")
 
 GOOGLE_ADS = SourceTemplate(
     source="google_ads",
-    label="Google Ads",
+    label=SOURCE_LABELS["google_ads"],
     kind="ad",
     columns=(
         Column("Day", "date", ISO_DATE),
@@ -124,7 +125,7 @@ def _daily_breakdown(record: Record) -> str | None:
 
 META_ADS = SourceTemplate(
     source="meta_ads",
-    label="Meta Ads",
+    label=SOURCE_LABELS["meta_ads"],
     kind="ad",
     columns=(
         Column("Reporting starts", "date", ISO_DATE),
@@ -163,7 +164,7 @@ def _with_bounces(record: Record) -> Record:
 
 WEB_ANALYTICS = SourceTemplate(
     source="web_analytics",
-    label="Web analytics (GA4)",
+    label=SOURCE_LABELS["web_analytics"],
     kind="web",
     columns=(
         Column("Date", "date", COMPACT_DATE),
@@ -196,7 +197,7 @@ def _net_sales_reconcile(record: Record) -> str | None:
 
 STORE_ORDERS = SourceTemplate(
     source="store_orders",
-    label="Store orders (Shopify)",
+    label=SOURCE_LABELS["store_orders"],
     kind="store",
     columns=(
         Column("Day", "date", ISO_DATE),

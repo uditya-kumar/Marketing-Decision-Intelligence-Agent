@@ -3,7 +3,7 @@ import { ErrorState } from '@/components/common/error-state'
 import { PageHeader } from '@/components/common/page-header'
 import type { Schemas } from '@/lib/api-client'
 import { formatDate } from '@/lib/format'
-import { useIngestionRuns, useIngestionStatus, useTemplates } from './api'
+import { useIngestionRuns, useIngestionStatus, useTemplates, useTrust } from './api'
 import { RunHistory } from './components/run-history'
 import { SourcesTable } from './components/sources-table'
 import { TemplateLinks } from './components/template-links'
@@ -22,6 +22,7 @@ export default function DataPage() {
   const status = useIngestionStatus()
   const runs = useIngestionRuns()
   const templates = useTemplates()
+  const trust = useTrust()
 
   if (status.isError) {
     return <ErrorState message="We couldn't load your data sources." onRetry={status.refetch} />
@@ -43,7 +44,7 @@ export default function DataPage() {
         {templates.data && <TemplateLinks templates={templates.data} />}
       </PageHeader>
       <UploadZone sourceLabels={sourceLabels} />
-      <SourcesTable sources={status.data.sources} />
+      <SourcesTable sources={status.data.sources} trust={trust.data?.sources} />
       {runs.isError ? (
         <ErrorState message="We couldn't load the import history." onRetry={runs.refetch} />
       ) : runs.data ? (

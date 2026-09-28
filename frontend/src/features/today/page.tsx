@@ -7,8 +7,10 @@ import { ErrorState } from '@/components/common/error-state'
 import { PageHeader } from '@/components/common/page-header'
 import { useToday } from './api'
 import { KpiStrip } from './components/kpi-strip'
+import { PacingCard } from './components/pacing-card'
 import { TrendChart } from './components/trend-chart'
-import { greeting, weekSummary } from './text'
+import { TrustBanner } from './components/trust-banner'
+import { greeting, trustAlert, weekSummary } from './text'
 
 function TodaySkeleton() {
   return (
@@ -20,6 +22,10 @@ function TodaySkeleton() {
         ))}
       </div>
       <Skeleton className="h-52" />
+      <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-12">
+        <div />
+        <Skeleton className="h-64" />
+      </div>
     </>
   )
 }
@@ -63,6 +69,7 @@ export default function TodayPage() {
     )
   }
 
+  const trustIssue = trustAlert(data)
   return (
     <>
       <PageHeader title={title} summary={weekSummary(data)}>
@@ -75,8 +82,14 @@ export default function TodayPage() {
           </p>
         )}
       </PageHeader>
+      {trustIssue && <TrustBanner {...trustIssue} />}
       <KpiStrip kpis={data.kpis} />
       <TrendChart points={data.trend} />
+      {/* The left column holds Needs attention and Opportunities from Phase 5. */}
+      <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-12">
+        <div />
+        <PacingCard pacing={data.pacing} />
+      </div>
     </>
   )
 }

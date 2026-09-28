@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from sqlalchemy import Select
     from sqlalchemy.orm import Session
 
+    from mdia.domain.periods import Period
     from mdia.domain.sources import Source
 
 type Row = Mapping[str, Any]
@@ -127,6 +128,18 @@ class FactRepository:
         found = [SourceCoverage(*row) for row in self._session.execute(stmt)]
         return [coverage for coverage in found if coverage.rows]
 
+    def dates_by_source(self, period: Period) -> dict[Source, set[dt.date]]:
+        """The days inside ``period`` that each source has any rows for."""
+        stmt = union_all(
+            _dates_query(FactAdDaily.date, FactAdDaily.channel_id, period),
+            _dates_query(FactWebDaily.date, literal("web_analytics"), period),
+            _dates_query(FactStoreDaily.date, literal("store_orders"), period),
+        )
+        dates: dict[Source, set[dt.date]] = {}
+        for source, day in self._session.execute(stmt):
+            dates.setdefault(source, set()).add(day)
+        return dates
+
 
 def _coverage_query(date_column: Any, source: Any) -> Select[Any]:
     stats = (
@@ -136,6 +149,14 @@ def _coverage_query(date_column: Any, source: Any) -> Select[Any]:
         func.count(date_column.distinct()),
     )
     return select(source, *stats).group_by(source)
+
+
+def _dates_query(date_column: Any, source: Any, period: Period) -> Select[Any]:
+    return (
+        select(source, date_column)
+        .where(date_column.between(period.start, period.end))
+        .group_by(source, date_column)
+    )
 
 
 def _unique(

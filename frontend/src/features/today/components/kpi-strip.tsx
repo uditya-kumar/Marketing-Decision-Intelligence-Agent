@@ -19,7 +19,8 @@ export function KpiStrip({ kpis }: { kpis: Schemas['KpiSummaryOut'][] }) {
           changePct={kpi.change_pct}
           higherIsBetter={kpi.higher_is_better}
           comparison="vs last week"
-          goal={goalLine(kpi)}
+          goal={kpi.reliable ? goalLine(kpi) : 'Unreliable while tracking is broken'}
+          muted={!kpi.reliable}
         />
       ))}
     </section>

@@ -38,13 +38,15 @@ def loaded(client: TestClient) -> TestClient:
 
 def test_today_is_empty_without_data(client: TestClient) -> None:
     body = client.get("/api/v1/today").json()
-    assert body == {
+    assert {k: body[k] for k in ("as_of_date", "configured", "period", "kpis", "trend")} == {
         "as_of_date": None,
         "configured": False,
         "period": None,
         "kpis": [],
         "trend": [],
     }
+    assert body["pacing"] == {"month": None, "total": None, "channels": []}
+    assert all(s["status"] == "broken" for s in body["trust"]["sources"])
 
 
 def test_today_matches_the_hand_calculation(loaded: TestClient) -> None:
@@ -81,6 +83,8 @@ def test_today_matches_the_hand_calculation(loaded: TestClient) -> None:
     assert kpis["spend"]["goal"] is None
     assert kpis["spend"]["higher_is_better"] is None
     assert kpis["cpa"]["higher_is_better"] is False
+    # Two days is too little history for a tracking check, so nothing is muted.
+    assert all(k["reliable"] for k in body["kpis"])
 
     trend = body["trend"]
     assert len(trend) == 30

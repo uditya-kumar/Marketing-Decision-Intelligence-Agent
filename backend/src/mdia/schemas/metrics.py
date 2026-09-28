@@ -1,4 +1,4 @@
-"""API DTOs for KPI series (``/metrics``) and the Today summary (``/today``)."""
+"""API DTOs for KPI series (``/metrics``) and the Today KPI summary."""
 
 from __future__ import annotations
 
@@ -31,6 +31,7 @@ class KpiSummaryOut(_Out):
     change_pct: float | None
     higher_is_better: bool | None
     goal: GoalOut | None
+    reliable: bool
 
 
 class TrendPointOut(_Out):
@@ -40,14 +41,6 @@ class TrendPointOut(_Out):
     roas: float | None
     mer: float | None
     cpa: float | None
-
-
-class TodayOut(_Out):
-    as_of_date: dt.date | None
-    configured: bool
-    period: PeriodOut | None
-    kpis: list[KpiSummaryOut]
-    trend: list[TrendPointOut]
 
 
 class SeriesPointOut(_Out):

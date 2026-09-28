@@ -14,10 +14,10 @@ from mdia.domain.periods import Period, days_in_month, trailing
 from mdia.domain.trust import as_of_date
 from mdia.repositories.facts import AD_MEASURES, FactRepository
 from mdia.repositories.metrics import MetricsRepository
-from mdia.repositories.settings import SettingsRepository
 
 if TYPE_CHECKING:
     import datetime as dt
+    from collections.abc import Collection
 
     from sqlalchemy.orm import Session
 
@@ -45,6 +45,8 @@ class KpiSummary:
     change_pct: float | None
     higher_is_better: bool | None
     goal: Goal | None
+    # False when the metric rests on data that failed a trust check (FR-5).
+    reliable: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -58,10 +60,8 @@ class TrendPoint:
 
 
 @dataclass(frozen=True, slots=True)
-class TodayView:
-    as_of_date: dt.date | None
-    configured: bool
-    period: Period | None
+class TodayKpis:
+    period: Period
     kpis: list[KpiSummary]
     trend: list[TrendPoint]
 
@@ -94,17 +94,17 @@ class MetricsService:
     def __init__(self, session: Session) -> None:
         self._metrics = MetricsRepository(session)
         self._facts = FactRepository(session)
-        self._settings = SettingsRepository(session)
 
     def as_of(self) -> dt.date | None:
         return as_of_date({c.source: c.last_date for c in self._facts.coverage()})
 
-    def today(self) -> TodayView:
-        """Headline KPIs for the last week against the week before, plus a 30-day trend."""
-        settings = self._settings.get()
-        as_of = self.as_of()
-        if as_of is None:
-            return TodayView(None, settings is not None, None, [], [])
+    def today(
+        self,
+        as_of: dt.date,
+        settings: BusinessSettings | None,
+        unreliable: Collection[Metric] = (),
+    ) -> TodayKpis:
+        """Headline KPIs for the week to ``as_of`` against the week before, plus a 30-day trend."""
         current = trailing(as_of, COMPARE_DAYS)
         trend = trailing(as_of, TREND_DAYS)
         frame = self._daily(Period(min(trend.start, current.previous().start), as_of))
@@ -118,6 +118,7 @@ class MetricsService:
                 change_pct(before[metric], now[metric]),
                 higher_is_better(metric),
                 _goal(metric, now[metric], targets.get(metric)),
+                metric not in unreliable,
             )
             for metric in TODAY_METRICS
         ]
@@ -126,7 +127,7 @@ class MetricsService:
             TrendPoint(day, **{m: _value(row[m]) for m in TODAY_METRICS})
             for day, row in zip(trend.dates(), daily.to_dict("records"), strict=True)
         ]
-        return TodayView(as_of, settings is not None, current, summaries, points)
+        return TodayKpis(current, summaries, points)
 
     def series(
         self, metric: Metric, dimension: Dimension | None, days: int, end: dt.date | None

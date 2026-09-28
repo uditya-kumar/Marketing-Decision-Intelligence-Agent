@@ -179,9 +179,30 @@ export interface paths {
     }
     /**
      * Today
-     * @description Headline KPIs for the week to the as-of date vs the week before, with goal markers.
+     * @description Headline KPIs for the week to the as-of date vs the week before, with goal markers,
+     *     plus the trust status of every source and month-to-date budget pacing.
      */
     get: operations['today_api_v1_today_get']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/trust': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Trust
+     * @description Freshness of every source and, for ad channels, a tracking check against store orders.
+     */
+    get: operations['trust_api_v1_trust_get']
     put?: never
     post?: never
     delete?: never
@@ -214,6 +235,17 @@ export interface components {
       /** Name */
       name: string
     }
+    /** ChannelPacingOut */
+    ChannelPacingOut: {
+      /**
+       * Channel
+       * @enum {string}
+       */
+      channel: 'google_ads' | 'meta_ads'
+      pacing: components['schemas']['PacingOut']
+      /** Label */
+      readonly label: string
+    }
     /**
      * FestiveWindow
      * @description A sale or festival where big swings are expected, so signals are suppressed.
@@ -231,6 +263,15 @@ export interface components {
        * Format: date
        */
       end: string
+    }
+    /** FreshnessOut */
+    FreshnessOut: {
+      /** Last Date */
+      last_date: string | null
+      /** Days Behind */
+      days_behind: number
+      /** Missing Dates */
+      missing_dates: string[]
     }
     /** GoalOut */
     GoalOut: {
@@ -342,6 +383,8 @@ export interface components {
       /** Higher Is Better */
       higher_is_better: boolean | null
       goal: components['schemas']['GoalOut'] | null
+      /** Reliable */
+      reliable: boolean
     }
     /** MetricSeriesOut */
     MetricSeriesOut: {
@@ -389,6 +432,37 @@ export interface components {
       period: components['schemas']['PeriodOut'] | null
       /** Series */
       series: components['schemas']['MetricSeriesOut'][]
+    }
+    /** PacingOut */
+    PacingOut: {
+      /** Budget */
+      budget: number
+      /** Spent */
+      spent: number
+      /** Spent Pct */
+      spent_pct: number
+      /** Remaining Budget */
+      remaining_budget: number
+      /** Month Elapsed Pct */
+      month_elapsed_pct: number
+      /** Projected */
+      projected: number
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'on_track' | 'over' | 'under'
+      /** Daily Run Rate */
+      daily_run_rate: number
+      /** Suggested Daily */
+      suggested_daily: number | null
+    }
+    /** PacingViewOut */
+    PacingViewOut: {
+      month: components['schemas']['PeriodOut'] | null
+      total: components['schemas']['PacingOut'] | null
+      /** Channels */
+      channels: components['schemas']['ChannelPacingOut'][]
     }
     /** PeriodOut */
     PeriodOut: {
@@ -476,6 +550,23 @@ export interface components {
       /** Days */
       days: number
     }
+    /** SourceTrustOut */
+    SourceTrustOut: {
+      /**
+       * Source
+       * @enum {string}
+       */
+      source: 'google_ads' | 'meta_ads' | 'web_analytics' | 'store_orders'
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'ok' | 'warning' | 'broken'
+      freshness: components['schemas']['FreshnessOut']
+      tracking: components['schemas']['TrackingOut'] | null
+      /** Label */
+      readonly label: string
+    }
     /** TemplateColumnOut */
     TemplateColumnOut: {
       /** Header */
@@ -510,6 +601,24 @@ export interface components {
       kpis: components['schemas']['KpiSummaryOut'][]
       /** Trend */
       trend: components['schemas']['TrendPointOut'][]
+      trust: components['schemas']['TrustOut']
+      pacing: components['schemas']['PacingViewOut']
+    }
+    /** TrackingOut */
+    TrackingOut: {
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'ok' | 'warning' | 'broken'
+      /** Ratio Change */
+      ratio_change: number
+      /** Since */
+      since: string | null
+      /** Conversions Change Pct */
+      conversions_change_pct: number | null
+      /** Orders Change Pct */
+      orders_change_pct: number | null
     }
     /** TrendPointOut */
     TrendPointOut: {
@@ -528,6 +637,13 @@ export interface components {
       mer: number | null
       /** Cpa */
       cpa: number | null
+    }
+    /** TrustOut */
+    TrustOut: {
+      /** As Of Date */
+      as_of_date: string | null
+      /** Sources */
+      sources: components['schemas']['SourceTrustOut'][]
     }
     /** UploadResponse */
     UploadResponse: {
@@ -826,6 +942,26 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['TodayOut']
+        }
+      }
+    }
+  }
+  trust_api_v1_trust_get: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['TrustOut']
         }
       }
     }

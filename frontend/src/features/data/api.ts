@@ -5,6 +5,7 @@ const keys = {
   status: ['ingestion', 'status'] as const,
   runs: ['ingestion', 'runs'] as const,
   templates: ['ingestion', 'templates'] as const,
+  trust: ['trust'] as const,
 }
 
 export function useIngestionStatus() {
@@ -26,6 +27,13 @@ export function useTemplates() {
     queryKey: keys.templates,
     queryFn: () => unwrap(api.GET('/api/v1/ingestion/templates')),
     staleTime: Infinity,
+  })
+}
+
+export function useTrust() {
+  return useQuery({
+    queryKey: keys.trust,
+    queryFn: () => unwrap(api.GET('/api/v1/trust')),
   })
 }
 

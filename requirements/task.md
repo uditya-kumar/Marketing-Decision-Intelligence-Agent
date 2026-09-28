@@ -75,13 +75,13 @@ Every screen gets its empty, loading and error states when it is built, not in a
 
 ## Phase 4 — Data Trust & Pacing (FR-5, FR-7)
 
-- [ ] **4.1** `domain/trust.py`: missing days and sources, and tracking break (platform conversions vs store orders against the channel's historical ratio). Status per source: `ok | warning | broken`.
+- [x] **4.1** `domain/trust.py`: missing days and sources, and tracking break (platform conversions vs store orders against the channel's historical ratio). Status per source: `ok | warning | broken`.
   Done when: the `tracking_break` scenario is flagged and normal attribution noise is not.
-- [ ] **4.2** `domain/pacing.py`: month-to-date spend vs budget, run-rate projection, status, suggested daily spend.
+- [x] **4.2** `domain/pacing.py`: month-to-date spend vs budget, run-rate projection, status, suggested daily spend.
   Done when: unit tests pass, including month boundaries.
-- [ ] **4.3** `TrustService` / `PacingService` (computed on request; not stored) + `GET /trust`; both included in `GET /today`.
+- [x] **4.3** `TrustService` / `PacingService` (computed on request; not stored) + `GET /trust`; both included in `GET /today`.
   Done when: the `budget_overpace` scenario shows `over`.
-- [ ] **4.4** UI: trust banner on Today, trust badges on the Data page, pacing card on Today.
+- [x] **4.4** UI: trust banner on Today, trust badges on the Data page, pacing card on Today.
   Done when: **Demo 2** — "Meta tracking looks broken; don't change campaigns yet."
 
 ---
