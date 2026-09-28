@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, literal, select, union_all
 
 from mdia.models import FactAdDaily, FactStoreDaily, FactWebDaily
 from mdia.repositories.entities import EntityRepository
@@ -118,27 +118,24 @@ class FactRepository:
 
     def coverage(self) -> list[SourceCoverage]:
         """Date span and row count of each source that has any data."""
-        ads = _coverage_query(FactAdDaily.date, FactAdDaily.channel_id)
-        web = _coverage_query(FactWebDaily.date)
-        store = _coverage_query(FactStoreDaily.date)
-        found = [
-            *(SourceCoverage(source, *stats) for source, *stats in self._session.execute(ads)),
-            *(SourceCoverage("web_analytics", *row) for row in self._session.execute(web)),
-            *(SourceCoverage("store_orders", *row) for row in self._session.execute(store)),
-        ]
+        # One round trip: dashboard latency is dominated by trips to the database.
+        stmt = union_all(
+            _coverage_query(FactAdDaily.date, FactAdDaily.channel_id),
+            _coverage_query(FactWebDaily.date, literal("web_analytics")),
+            _coverage_query(FactStoreDaily.date, literal("store_orders")),
+        )
+        found = [SourceCoverage(*row) for row in self._session.execute(stmt)]
         return [coverage for coverage in found if coverage.rows]
 
 
-def _coverage_query(date_column: Any, group_by: Any = None) -> Select[Any]:
+def _coverage_query(date_column: Any, source: Any) -> Select[Any]:
     stats = (
         func.min(date_column),
         func.max(date_column),
         func.count(),
         func.count(date_column.distinct()),
     )
-    if group_by is None:
-        return select(*stats)
-    return select(group_by, *stats).group_by(group_by)
+    return select(source, *stats).group_by(source)
 
 
 def _unique(

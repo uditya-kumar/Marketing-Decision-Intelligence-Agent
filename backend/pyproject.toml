@@ -13,6 +13,7 @@ dependencies = [
     "alembic>=1.14",
     "structlog>=24.4",
     "python-multipart>=0.0.20",
+    "pandas>=3.0.6",
 ]
 
 [project.optional-dependencies]
@@ -24,6 +25,7 @@ dev = [
     "httpx>=0.27",
     "hypothesis>=6.115",
     "pre-commit>=4.0",
+    "pandas-stubs>=3.0.5.260914",
 ]
 
 [build-system]

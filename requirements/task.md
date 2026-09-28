@@ -33,7 +33,7 @@ Every screen gets its empty, loading and error states when it is built, not in a
 
 ---
 
-## Phase 2 — Data Model & Ingestion (FR-3)
+## Phase 2 — Data Model & Ingestion (FR-3) ✅
 
 - [x] **2.1** ORM + migration: dims, `fact_ad_daily`, `fact_web_daily`, `fact_store_daily`, `ingestion_runs`.
   Done when: `alembic upgrade head` succeeds on `dev`.
@@ -43,7 +43,7 @@ Every screen gets its empty, loading and error states when it is built, not in a
   Done when: each generator CSV is recognised.
 - [x] **2.4** CSV reader with row validation and a rejected-row report.
   Done when: malformed rows are reported and valid rows are loaded.
-- [ ] **2.5** `IngestionService` + `POST /ingestion/upload`, `GET /ingestion/runs`, `GET /ingestion/status`, `GET /ingestion/templates`; as-of date computed.
+- [x] **2.5** `IngestionService` + `POST /ingestion/upload`, `GET /ingestion/runs`, `GET /ingestion/status`, `GET /ingestion/templates`; as-of date computed.
   Done when: the 180-day backfill loads via the API (integration test).
 - [x] **2.6** Guard test: no backend code references `ground_truth`.
   Done when: the test passes.
@@ -52,23 +52,23 @@ Every screen gets its empty, loading and error states when it is built, not in a
 
 ## Phase 3 — Settings, KPIs & Today v1 (FR-1, FR-4)
 
-- [ ] **3.1** `settings` table (a single row: margin, targets, monthly budget per channel, festive windows, protected campaigns) + `GET/PUT /settings`.
+- [x] **3.1** `settings` table (a single row: margin, targets, monthly budget per channel, festive windows, protected campaigns) + `GET/PUT /settings`.
   Done when: values persist; invalid values (margin ≤ 0, negative budget) give a 422.
-- [ ] **3.2** `domain/goals.py`: break-even ROAS and goal status (`ahead | on_track | behind`).
+- [x] **3.2** `domain/goals.py`: break-even ROAS and goal status (`ahead | on_track | behind`).
   Done when: unit tests pass.
-- [ ] **3.3** `domain/kpi.py`: ratio KPIs from base measures (CTR, CPC, CPM, CVR, CPA, ROAS, AOV, frequency, MER).
+- [x] **3.3** `domain/kpi.py`: ratio KPIs from base measures (CTR, CPC, CPM, CVR, CPA, ROAS, AOV, frequency, MER).
   Done when: Hypothesis property tests pass (no division by zero; the ratio of sums, not the mean of ratios).
-- [ ] **3.4** `domain/decomposition.py`: `CPA = CPC / CVR`, `ROAS = CVR × AOV / CPC`, `CPC = CPM / (1000·CTR)`, with log-change attribution.
+- [x] **3.4** `domain/decomposition.py`: `CPA = CPC / CVR`, `ROAS = CVR × AOV / CPC`, `CPC = CPM / (1000·CTR)`, with log-change attribution.
   Done when: the contribution shares sum to 100 % (test).
-- [ ] **3.5** `MetricsService` (on-the-fly SQL + pandas; no aggregate table) + `GET /metrics` (KPI by channel/campaign per day, compared with the previous period) + `GET /today` (KPI summary).
+- [x] **3.5** `MetricsService` (on-the-fly SQL + pandas; no aggregate table) + `GET /metrics` (KPI by channel/campaign per day, compared with the previous period) + `GET /today` (KPI summary).
   Done when: values match a hand calculation on the fixtures.
-- [ ] **3.6** Frontend base: apply the `designSystem.md` tokens; `npm run gen:api` → `types/api.ts`; `lib/api-client.ts`; `lib/format.ts` (₹ lakh/crore, %, deltas); common `KpiCard`, `Delta`, `EmptyState`.
+- [x] **3.6** Frontend base: apply the `designSystem.md` tokens; `npm run gen:api` → `types/api.ts`; `lib/api-client.ts`; `lib/format.ts` (₹ lakh/crore, %, deltas); common `KpiCard`, `Delta`, `EmptyState`.
   Done when: the frontend compiles against the generated types.
-- [ ] **3.7** Data page: drag-drop upload, the detected source per file, row errors, source status, run history.
+- [x] **3.7** Data page: drag-drop upload, the detected source per file, row errors, source status, run history.
   Done when: uploading a bad CSV shows row-level errors.
-- [ ] **3.8** Settings page (one form).
+- [x] **3.8** Settings page (one form).
   Done when: values persist and reload.
-- [ ] **3.9** Today v1: as-of date, the KPI strip (Revenue, Spend, ROAS, MER, CPA) with deltas and goal markers, a 30-day trend chart; empty state linking to Settings and Data.
+- [x] **3.9** Today v1: as-of date, the KPI strip (Revenue, Spend, ROAS, MER, CPA) with deltas and goal markers, a 30-day trend chart; empty state linking to Settings and Data.
   Done when: **Demo 1** — real numbers render after uploading the backfill.
 
 ---

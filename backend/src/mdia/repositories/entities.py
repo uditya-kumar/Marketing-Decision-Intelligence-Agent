@@ -22,6 +22,11 @@ class EntityRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
 
+    def list_campaigns(self) -> Sequence[DimCampaign]:
+        return self._session.scalars(
+            select(DimCampaign).order_by(DimCampaign.channel_id, DimCampaign.name)
+        ).all()
+
     def upsert_channel(self, channel_id: str, name: str) -> None:
         upsert(self._session, DimChannel, [{"id": channel_id, "name": name}])
 

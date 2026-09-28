@@ -11,6 +11,10 @@ export default defineConfig({
     react({ compiler: true }),
     tailwindcss(),
   ],
+  // The API has no CORS, so the dev server forwards /api to it.
+  server: {
+    proxy: { '/api': 'http://localhost:8000' },
+  },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
