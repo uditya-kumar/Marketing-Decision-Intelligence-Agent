@@ -58,11 +58,6 @@ export function DismissForm({ id, defaultOpen = false, primary }: DismissFormPro
           Cancel
         </Button>
       </div>
-      {dismiss.isError && (
-        <p className="text-[13px] text-crimson">
-          That didn't save. Try again, or reload if it keeps failing.
-        </p>
-      )}
     </form>
   )
 }

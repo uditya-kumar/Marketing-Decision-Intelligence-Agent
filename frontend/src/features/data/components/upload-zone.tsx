@@ -115,12 +115,6 @@ export function UploadZone({ sourceLabels }: UploadZoneProps) {
         </ul>
       )}
 
-      {upload.isError && (
-        <p role="alert" className="border-t border-stone px-5 py-3.5 text-[13px] text-crimson">
-          {upload.error.message}
-        </p>
-      )}
-
       {files.length > 0 && (
         <div className="flex items-center gap-3 border-t border-stone px-5 py-3.5">
           <p className="flex-1 text-[13px] text-ash">

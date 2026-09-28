@@ -23,7 +23,6 @@ export function SettingsForm({ saved, campaigns }: SettingsFormProps) {
   const [form, setForm] = useState<Form>(() => toForm(saved))
   const save = useSaveSettings()
   const errors = save.error instanceof ApiError ? save.error.fieldErrors() : {}
-  const formError = save.error && Object.keys(errors).length === 0 ? save.error.message : null
 
   function set<K extends keyof Form>(key: K, value: Form[K]) {
     setForm((current) => ({ ...current, [key]: value }))
@@ -149,11 +148,6 @@ export function SettingsForm({ saved, campaigns }: SettingsFormProps) {
           <span className="flex items-center gap-1.5 text-[13px] text-forest">
             <CircleCheck className="size-3.5" aria-hidden />
             Saved
-          </span>
-        )}
-        {formError && (
-          <span role="alert" className="text-[13px] text-crimson">
-            {formError}
           </span>
         )}
       </div>

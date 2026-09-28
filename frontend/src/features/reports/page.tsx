@@ -70,10 +70,6 @@ export default function ReportsPage() {
         </Button>
       </div>
 
-      {generate.isError && (
-        <ErrorState message="We couldn't write that week's report." onRetry={write} />
-      )}
-
       {latestWeek === null ? (
         <EmptyState
           icon={Upload}

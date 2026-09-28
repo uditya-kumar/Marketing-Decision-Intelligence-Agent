@@ -95,7 +95,9 @@ def test_suggested_spend_lands_on_budget(budget: float, spent: float, day: dt.da
     pacing = pace(budget, spent, day)
     remaining = days_in_month(day) - day.day
 
-    assert pacing.projected >= spent
+    # Projecting the run rate forward can never land under what is already spent, give or
+    # take the last bits of a division that dividing by the days and multiplying back loses.
+    assert pacing.projected >= spent or pacing.projected == pytest.approx(spent)
     if pacing.suggested_daily is None:
         assert remaining == 0
     elif spent <= budget:

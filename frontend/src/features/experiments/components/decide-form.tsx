@@ -14,7 +14,6 @@ export function DecideForm({ id }: { id: number }) {
   const approve = useDecideExperiment(id, 'approve')
   const reject = useDecideExperiment(id, 'reject')
   const tooShort = reason.trim().length < MIN_REASON
-  const failed = approve.isError || reject.isError
 
   function submit(event: FormEvent) {
     event.preventDefault()
@@ -55,11 +54,6 @@ export function DecideForm({ id }: { id: number }) {
             Approving records the change; make it on the platform and MDIA watches the metric.
           </span>
         </div>
-      )}
-      {failed && (
-        <p className="text-[13px] text-crimson">
-          That didn't save. Try again, or reload if it keeps failing.
-        </p>
       )}
     </div>
   )

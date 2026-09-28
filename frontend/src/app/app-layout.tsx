@@ -5,6 +5,7 @@ import { useIngestionStatus } from '@/features/data/api'
 import { useSettings } from '@/features/settings/api'
 import { formatDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { ErrorBoundary } from './error-boundary'
 import { primaryNav, secondaryNav, type NavItem } from './nav-items'
 
 const allNav: NavItem[] = [...primaryNav, ...secondaryNav]
@@ -96,7 +97,9 @@ export default function AppLayout() {
 
         <main className="flex-1 px-14 pt-12 pb-16 print:p-0">
           <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-10">
-            <Outlet />
+            <ErrorBoundary key={pathname}>
+              <Outlet />
+            </ErrorBoundary>
           </div>
         </main>
       </div>

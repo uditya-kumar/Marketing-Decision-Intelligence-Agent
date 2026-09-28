@@ -8,18 +8,11 @@ export function CreateExperiment({ id }: { id: number }) {
   const create = useCreateExperiment(id)
 
   return (
-    <div className="flex flex-col gap-2">
-      <Button
-        onClick={() => create.mutate(undefined, { onSuccess: () => void navigate('/experiments') })}
-        disabled={create.isPending}
-      >
-        {create.isPending ? 'Creating…' : 'Create experiment'}
-      </Button>
-      {create.isError && (
-        <p className="text-[13px] text-crimson">
-          We couldn't start an experiment for this one. Try again in a moment.
-        </p>
-      )}
-    </div>
+    <Button
+      onClick={() => create.mutate(undefined, { onSuccess: () => void navigate('/experiments') })}
+      disabled={create.isPending}
+    >
+      {create.isPending ? 'Creating…' : 'Create experiment'}
+    </Button>
   )
 }
