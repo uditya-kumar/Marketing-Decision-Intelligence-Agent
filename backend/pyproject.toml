@@ -14,6 +14,10 @@ dependencies = [
     "structlog>=24.4",
     "python-multipart>=0.0.20",
     "pandas>=3.0.6",
+    "langgraph>=0.2",
+    "langchain>=0.3",
+    "langchain-aws>=0.2",
+    "langchain-google-genai>=2.0",
 ]
 
 [project.optional-dependencies]
@@ -38,7 +42,7 @@ packages = ["src/mdia"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-src = ["src", "tests"]
+src = ["src", "."]
 
 [tool.ruff.lint]
 select = [
@@ -78,7 +82,8 @@ module = ["tests.*"]
 disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+# "." so the agent tests can import the shared fakes and builders from ``tests/``.
+pythonpath = ["src", "."]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 markers = [

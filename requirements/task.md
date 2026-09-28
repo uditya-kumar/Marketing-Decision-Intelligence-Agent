@@ -103,19 +103,19 @@ Every screen gets its empty, loading and error states when it is built, not in a
 
 ## Phase 6 — LLM Investigation (FR-8, FR-9)
 
-- [ ] **6.1** `agents/llm.py`: `get_chat_model()` via `init_chat_model` (Bedrock now; Gemini by env), a structured-output call at temperature 0, and `llm_calls` logging.
+- [x] **6.1** `agents/llm.py`: `get_chat_model()` via `init_chat_model` (Bedrock now; Gemini by env), a structured-output call at temperature 0, and `llm_calls` logging.
   Done when: a Bedrock smoke test returns a validated object and a log row.
-- [ ] **6.2** Fake chat model for tests (`tests/fakes.py`).
+- [x] **6.2** Fake chat model for tests (`tests/fakes.py`).
   Done when: agent tests run offline.
-- [ ] **6.3** `domain/diagnosis.py`: evidence tree from the decomposition + rule-based diagnosis.
+- [x] **6.3** `domain/diagnosis.py`: evidence tree from the decomposition + rule-based diagnosis.
   Done when: at least 5 of the 7 scenario types get the right label.
-- [ ] **6.4** `domain/recommendations.py`: action catalogue + param validation, computed confidence (including a data-trust term), a guardrail for protected campaigns, and priority = ₹ impact × confidence.
+- [x] **6.4** `domain/recommendations.py`: action catalogue + param validation, computed confidence (including a data-trust term), a guardrail for protected campaigns, and priority = ₹ impact × confidence.
   Done when: confidence is monotonic (property test) and a protected campaign never gets `pause_*`.
-- [ ] **6.5** `agents/grounding.py`: every signal ID, action type and number in LLM output must exist in the evidence.
+- [x] **6.5** `agents/grounding.py`: every signal ID, action type and number in LLM output must exist in the evidence.
   Done when: fabricated IDs and numbers are caught (unit tests).
-- [ ] **6.6** `agents/investigation.py` graph: `build_evidence → diagnose (LLM) → ground_check → retry ≤ 2 | rules fallback → finalize (confidence, guardrails, priority in code)`, with a `RetryPolicy` on the LLM node.
+- [x] **6.6** `agents/investigation.py` graph: `build_evidence → diagnose (LLM) → ground_check → retry ≤ 2 | rules fallback → finalize (confidence, guardrails, priority in code)`, with a `RetryPolicy` on the LLM node.
   Done when: a "lying" fake LLM ends in the fallback; with Bedrock, a real opportunity is diagnosed.
-- [ ] **6.7** Wire the graph into `AnalysisService`, investigating the top N opportunities one after another; the pipeline still finishes if the LLM is down.
+- [x] **6.7** Wire the graph into `AnalysisService`, investigating the top N opportunities one after another; the pipeline still finishes if the LLM is down.
   Done when: uploading the backfill gives diagnosed opportunities, each labelled `llm` or `rules`.
 
 ---

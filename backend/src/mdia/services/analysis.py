@@ -14,14 +14,18 @@ from typing import TYPE_CHECKING, Any
 import pandas as pd
 import structlog
 
+from mdia.agents.investigation import build_investigation, investigate
+from mdia.agents.llm import get_chat_model
 from mdia.db.session import session_scope
 from mdia.domain.detection import Context, Facts, analyse
 from mdia.domain.opportunities import first_seen
 from mdia.domain.periods import Period, month_to_date, trailing
 from mdia.domain.signals import BASELINE_DAYS, WINDOW_DAYS
 from mdia.domain.sources import CHANNELS
+from mdia.domain.trust import worst
 from mdia.repositories.analysis import AnalysisRepository
 from mdia.repositories.facts import AD_MEASURES, FactRepository
+from mdia.repositories.llm_calls import LlmCallRepository
 from mdia.repositories.metrics import WEB_MEASURES, MetricsRepository
 from mdia.repositories.settings import SettingsRepository
 from mdia.services.metrics import STORE_MEASURES, account_targets
@@ -30,16 +34,24 @@ from mdia.services.trust import TrustService
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from langchain_core.language_models import BaseChatModel
     from sqlalchemy.orm import Session
 
+    from mdia.agents.investigation import Investigation
+    from mdia.domain.diagnosis import Evidence
     from mdia.domain.opportunities import Opportunity
+    from mdia.domain.recommendations import Recommendation
     from mdia.domain.sources import Channel
-    from mdia.domain.trust import TrackingCheck
+    from mdia.domain.trust import TrackingCheck, TrustStatus
     from mdia.models import AnalysisRun, BusinessSettings
     from mdia.models.analysis import AnalysisStatus
     from mdia.services.trust import TrustView
 
 log = structlog.get_logger(__name__)
+
+# How many opportunities are worth an LLM call; the rest are diagnosed by the rules,
+# which every opportunity gets anyway (FR-8.3's fallback is also the default).
+INVESTIGATE_TOP_N = 5
 
 _AD_COLUMNS = (
     "date",
@@ -74,6 +86,7 @@ class AnalysisService:
         self._metrics = MetricsRepository(session)
         self._settings = SettingsRepository(session)
         self._trust = TrustService(session)
+        self._llm_calls = LlmCallRepository(session)
 
     def status(self) -> AnalysisStatusView:
         run = self._analysis.latest_run()
@@ -100,12 +113,14 @@ class AnalysisService:
         self._session.commit()
         try:
             found = self._analyse(as_of, trust)
-            self._store(run.id, found)
+            investigated = self._investigate(found, trust)
+            self._store(run.id, found, investigated)
             self._analysis.finish(
                 run.id,
                 status="done",
                 signals=sum(len(o.signals) for o in found),
                 opportunities=len(found),
+                llm=sum(1 for result in investigated if result.source == "llm"),
             )
             self._session.commit()
         except Exception as error:
@@ -140,10 +155,44 @@ class AnalysisService:
         )
         return analyse(facts, context)
 
-    def _store(self, run_id: int, found: Sequence[Opportunity]) -> None:
+    def _investigate(self, found: Sequence[Opportunity], trust: TrustView) -> list[Investigation]:
+        """Diagnose every opportunity, one after another; the strongest few get the LLM.
+
+        Two graphs, because the rest are worth a rule-based diagnosis but not a call:
+        an LLM answer that only re-words the same evidence is not worth the latency.
+        """
+        protected = _protected(self._settings.get())
+        statuses = _trust_statuses(trust)
+        with_llm = build_investigation(_model())
+        rules_only = build_investigation(None)
+        results = []
+        for index, opportunity in enumerate(found):
+            channel = opportunity.entity.channel
+            results.append(
+                investigate(
+                    with_llm if index < INVESTIGATE_TOP_N else rules_only,
+                    opportunity,
+                    # A blended entity is only as trustworthy as its worst channel.
+                    trust=statuses.get(channel, "ok") if channel else worst(statuses.values()),
+                    protected=protected,
+                )
+            )
+        return results
+
+    def _store(
+        self,
+        run_id: int,
+        found: Sequence[Opportunity],
+        investigated: Sequence[Investigation],
+    ) -> None:
         seen = self._analysis.seen_dates([o.key for o in found])
-        rows = [_row(run_id, o, seen.get(o.key)) for o in found]
+        rows = [
+            _row(run_id, o, seen.get(o.key), result)
+            for o, result in zip(found, investigated, strict=True)
+        ]
         self._analysis.save(run_id, rows)
+        for result in investigated:
+            self._llm_calls.log(result.calls, analysis_run_id=run_id)
 
 
 def run_analysis() -> None:
@@ -194,8 +243,57 @@ def _tracking(trust: TrustView) -> dict[Channel, TrackingCheck]:
     }
 
 
+def _model() -> BaseChatModel | None:
+    """The chat model, or ``None`` when it cannot even be built (NFR-5)."""
+    try:
+        return get_chat_model()
+    except Exception as error:
+        log.warning("llm.unavailable", error=str(error))
+        return None
+
+
+def _trust_statuses(trust: TrustView) -> dict[Channel, TrustStatus]:
+    return {source.source: source.status for source in trust.sources if source.source in CHANNELS}
+
+
+def _protected(settings: BusinessSettings | None) -> list[str]:
+    return [
+        str(campaign_id) for campaign_id in (settings.protected_campaign_ids if settings else [])
+    ]
+
+
+def _evidence_row(evidence: Evidence) -> dict[str, Any]:
+    """The evidence tree and its context; the signals have a column of their own."""
+    row = {
+        "tree": asdict(evidence.tree),
+        "trust": evidence.trust,
+        "protected": evidence.protected,
+        "impact": evidence.impact,
+        "signal_ids": list(evidence.signal_ids),
+    }
+    return {key: _jsonable(value) for key, value in row.items()}
+
+
+def _diagnosis_row(result: Investigation) -> dict[str, Any]:
+    diagnosis = result.diagnosis
+    row = {
+        "observation": diagnosis.observation,
+        "hypotheses": [asdict(hypothesis) for hypothesis in diagnosis.hypotheses],
+        "alternatives": list(diagnosis.alternatives),
+        "source": result.source,
+    }
+    return {key: _jsonable(value) for key, value in row.items()}
+
+
+def _recommendation_row(recommendation: Recommendation | None) -> dict[str, Any] | None:
+    return None if recommendation is None else _jsonable(asdict(recommendation))
+
+
 def _row(
-    run_id: int, opportunity: Opportunity, seen: tuple[dt.date, dt.date] | None
+    run_id: int,
+    opportunity: Opportunity,
+    seen: tuple[dt.date, dt.date] | None,
+    result: Investigation,
 ) -> dict[str, Any]:
     entity = opportunity.entity
     window = opportunity.window
@@ -216,6 +314,12 @@ def _row(
         "impact": opportunity.impact,
         "score": opportunity.score,
         "signals": [_jsonable(asdict(signal)) for signal in opportunity.signals],
+        "evidence": _evidence_row(result.evidence),
+        "diagnosis": _diagnosis_row(result),
+        "recommendation": _recommendation_row(result.recommendation),
+        "confidence": result.confidence,
+        "priority": result.priority,
+        "diagnosis_source": result.source,
     }
 
 

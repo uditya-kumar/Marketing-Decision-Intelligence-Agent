@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from mdia.domain.kpi import Kpi
+    from mdia.domain.kpi import Kpi, Metric
 
 # Exponent of each driver; the constant 1000 in CPC = CPM / (1000·CTR) cancels in a ratio.
 FORMULAS: dict[Kpi, dict[Kpi, int]] = {
@@ -45,8 +45,8 @@ class Decomposition:
 
 def decompose(
     metric: Kpi,
-    before: Mapping[Kpi, float | None],
-    after: Mapping[Kpi, float | None],
+    before: Mapping[Metric, float | None],
+    after: Mapping[Metric, float | None],
 ) -> Decomposition | None:
     """Attribute the change in ``metric`` to its drivers.
 

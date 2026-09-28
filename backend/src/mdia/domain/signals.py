@@ -132,6 +132,8 @@ class Signal:
     adverse: bool
     # The window's base measures, kept so scoring and evidence need no second query.
     measures: Mapping[str, float] = field(default_factory=dict)
+    # The baseline's, so the evidence tree (FR-8.1) can decompose the move without one either.
+    baseline_measures: Mapping[str, float] = field(default_factory=dict)
     # Filled in by ``scoring.rank``; detectors know nothing about money.
     impact: float = 0.0
     score: float = 0.0
@@ -235,6 +237,7 @@ def _compare(
         change_pct=change,
         adverse=direction is not None and (change < 0) == direction,
         measures=current.measures,
+        baseline_measures=baseline.measures,
     )
 
 

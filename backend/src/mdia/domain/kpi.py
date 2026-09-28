@@ -78,6 +78,29 @@ _MEASURE_DIRECTION: dict[Measure, bool | None] = {
 }
 
 
+# How a metric is written in a sentence; anything missing reads well as it is.
+_LABELS: dict[Metric, str] = {
+    "ctr": "CTR",
+    "cpc": "CPC",
+    "cpm": "CPM",
+    "cvr": "CVR",
+    "cpa": "CPA",
+    "roas": "ROAS",
+    "aov": "AOV",
+    "mer": "MER",
+    "store_aov": "store AOV",
+    "web_cvr": "site conversion rate",
+    "atc_rate": "add-to-cart rate",
+    "platform_conversions": "reported conversions",
+    "platform_revenue": "reported revenue",
+}
+
+
+def label(metric: Metric) -> str:
+    """The metric's name as it reads in a sentence."""
+    return _LABELS.get(metric, metric.replace("_", " "))
+
+
 def definition(metric: Metric) -> KpiDef | None:
     """How ``metric`` is computed, or ``None`` when it is a base measure."""
     return KPI_DEFS.get(metric)  # type: ignore[arg-type]
