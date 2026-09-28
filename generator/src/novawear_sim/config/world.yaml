@@ -1,0 +1,263 @@
+# NovaWear — synthetic Indian D2C fashion brand.
+# Every number here is a *generator* parameter (the hidden truth). The backend never sees this
+# file; it only sees the exported CSVs.
+
+brand:
+  name: NovaWear
+  currency: INR
+  timezone: Asia/Kolkata
+  gross_margin: 0.55
+
+timeline:
+  # The simulation always runs from the epoch so that any output window is reproducible and a
+  # batch continues the exact state of the backfill before it.
+  epoch: 2025-09-01
+  default_end: 2026-10-14
+
+demand:
+  annual_growth: 0.2
+  weekly: {mon: 0.95, tue: 0.96, wed: 0.97, thu: 0.98, fri: 1.0, sat: 1.08, sun: 1.12}
+  payday: {days: [1, 2, 3, 4, 5], uplift: 0.05}
+  noise: {sigma: 0.04, persistence: 0.6}
+
+# Expected-change windows. `peak` makes the effect build up to and decay from that date;
+# without it the effect is flat (sale periods).
+calendar:
+  - {name: Navratri 2025, start: 2025-09-22, end: 2025-10-02, peak: 2025-10-01, demand_uplift: 0.35, cpm_uplift: 0.2, aov_uplift: 0.05, discount_rate: 0.12}
+  - {name: Diwali 2025, start: 2025-10-10, end: 2025-10-22, peak: 2025-10-18, demand_uplift: 0.9, cpm_uplift: 0.45, aov_uplift: 0.1, discount_rate: 0.18}
+  - {name: Winter EOSS 2025, start: 2025-12-19, end: 2026-01-10, demand_uplift: 0.45, cpm_uplift: 0.15, aov_uplift: -0.1, discount_rate: 0.3}
+  - {name: Republic Day Sale 2026, start: 2026-01-23, end: 2026-01-26, demand_uplift: 0.3, cpm_uplift: 0.1, aov_uplift: -0.05, discount_rate: 0.2}
+  - {name: Holi 2026, start: 2026-02-27, end: 2026-03-04, peak: 2026-03-03, demand_uplift: 0.25, cpm_uplift: 0.08, aov_uplift: 0.0, discount_rate: 0.1}
+  - {name: Summer EOSS 2026, start: 2026-06-19, end: 2026-07-05, demand_uplift: 0.5, cpm_uplift: 0.18, aov_uplift: -0.1, discount_rate: 0.3}
+  - {name: Independence Day Sale 2026, start: 2026-08-13, end: 2026-08-16, demand_uplift: 0.3, cpm_uplift: 0.1, aov_uplift: -0.05, discount_rate: 0.2}
+  - {name: Navratri 2026, start: 2026-10-11, end: 2026-10-20, peak: 2026-10-19, demand_uplift: 0.35, cpm_uplift: 0.2, aov_uplift: 0.05, discount_rate: 0.12}
+  - {name: Diwali 2026, start: 2026-10-29, end: 2026-11-10, peak: 2026-11-07, demand_uplift: 0.9, cpm_uplift: 0.45, aov_uplift: 0.1, discount_rate: 0.18}
+  - {name: Winter EOSS 2026, start: 2026-12-18, end: 2027-01-10, demand_uplift: 0.45, cpm_uplift: 0.15, aov_uplift: -0.1, discount_rate: 0.3}
+
+segments:
+  age_groups:
+    "18-24": {mix: 0.22, ctr: 1.15, cpm: 0.85, intent: 0.7}
+    "25-34": {mix: 0.38, ctr: 1.0, cpm: 1.0, intent: 1.1}
+    "35-44": {mix: 0.26, ctr: 0.92, cpm: 1.08, intent: 1.15}
+    "45-54": {mix: 0.14, ctr: 0.85, cpm: 1.1, intent: 1.0}
+  devices:
+    mobile: {ctr: 1.0, cpm: 1.0, engage_rate: 0.56}
+    desktop: {ctr: 0.9, cpm: 1.2, engage_rate: 0.68}
+
+# Response of behaviour to the demand index (elasticities).
+demand_response: {sessions: 1.0, ctr: 0.3, conversion: 0.7}
+
+funnel:
+  landing_rate: 0.9        # click -> recorded session
+  atc_rate: 0.095          # engaged session -> add to cart
+  checkout_rate: 0.46
+  purchase_rate: 0.66
+  aov: 1850
+  aov_noise: 0.35          # coefficient of variation of a single order value
+  ga_capture: 0.91         # share of sessions GA4 records (consent / ad blockers)
+  new_customer_share: {paid: 0.62, organic: 0.38}
+  refund_rate: 0.06
+  refund_lag_days: 9
+  tax_rate: 0.08
+  shipping: {share_of_orders: 0.18, fee: 79}
+
+fatigue:
+  memory: 0.88             # daily retention of the exposure stock (~5.4-day half-life)
+  threshold: 4.5           # exposure stock at which CTR starts to decay
+  sensitivity: 0.1         # CTR decay rate per unit of exposure above the threshold
+
+organic_sources:
+  - {source_medium: google / organic, sessions: 600, intent: 1.1, mobile_share: 0.7}
+  - {source_medium: (direct) / (none), sessions: 380, intent: 1.3, mobile_share: 0.62}
+  - {source_medium: newsletter / email, sessions: 120, intent: 1.4, mobile_share: 0.75, send_days: [tue, fri], send_multiplier: 3.5}
+  - {source_medium: instagram / social, sessions: 150, intent: 0.6, mobile_share: 0.97}
+
+channels:
+  - key: google_ads
+    name: Google Ads
+    source: google_ads
+    web_source: google / cpc
+    attribution_ratio: 1.08
+    mobile_share: 0.72
+    fatigue_sensitivity: 0.0
+    festive_cpm_sensitivity: 1.0
+    hill: {vmax: 1.0, k: 26000, slope: 1.1, reference_spend: 17000}
+    monthly_budget: {default: 520000, "2025-10": 640000, "2025-12": 560000, "2026-06": 600000, "2026-10": 620000, "2026-11": 680000}
+    campaigns:
+      - key: g_search_brand
+        name: NW | Search | Brand
+        budget_share: 0.14
+        ad_sets:
+          - key: g_brand_core
+            name: Brand - Core Terms
+            region: All India
+            cpm: 650
+            ctr: 0.11
+            intent: 2.4
+            creatives:
+              - {key: g_brand_rsa_1, name: RSA | NovaWear Official Store, weight: 0.6, ctr_factor: 1.05}
+              - {key: g_brand_rsa_2, name: RSA | Festive Collection Live, weight: 0.4, ctr_factor: 0.95}
+      - key: g_search_ethnic
+        name: NW | Search | Generic - Ethnic Wear
+        budget_share: 0.38
+        ad_sets:
+          - key: g_kurtas
+            name: Kurtas & Kurta Sets
+            region: All India
+            cpm: 520
+            ctr: 0.045
+            intent: 1.35
+            creatives:
+              - {key: g_kurtas_rsa_1, name: RSA | Cotton Kurtas Under 999, weight: 0.55, ctr_factor: 1.05}
+              - {key: g_kurtas_rsa_2, name: RSA | Designer Kurta Sets, weight: 0.45, ctr_factor: 0.95}
+          - key: g_sarees
+            name: Sarees
+            region: All India
+            cpm: 560
+            ctr: 0.04
+            intent: 1.25
+            creatives:
+              - {key: g_sarees_rsa_1, name: RSA | Silk Sarees Festive, weight: 0.5, ctr_factor: 1.0}
+              - {key: g_sarees_rsa_2, name: RSA | Everyday Cotton Sarees, weight: 0.5, ctr_factor: 1.0}
+      - key: g_pmax_catalogue
+        name: NW | PMax | Catalogue
+        budget_share: 0.48
+        ad_sets:
+          - key: g_pmax_women
+            name: Asset Group - Women Ethnic
+            region: All India
+            cpm: 160
+            ctr: 0.012
+            intent: 1.2
+            budget_share: 0.6
+            creatives:
+              - {key: g_pmax_women_a, name: PMax | Women Ethnic - Lifestyle, weight: 0.5, ctr_factor: 1.0}
+              - {key: g_pmax_women_b, name: PMax | Women Ethnic - Product Grid, weight: 0.5, ctr_factor: 1.0}
+          - key: g_pmax_men
+            name: Asset Group - Men Casual
+            region: All India
+            cpm: 150
+            ctr: 0.011
+            intent: 1.0
+            budget_share: 0.4
+            creatives:
+              - {key: g_pmax_men_a, name: PMax | Men Casual - Lifestyle, weight: 0.5, ctr_factor: 1.0}
+              - {key: g_pmax_men_b, name: PMax | Men Casual - Product Grid, weight: 0.5, ctr_factor: 1.0}
+
+  - key: meta_ads
+    name: Meta Ads
+    source: meta_ads
+    placement: facebook
+    web_source: facebook / paid_social
+    attribution_ratio: 1.32
+    mobile_share: 0.9
+    festive_cpm_sensitivity: 1.2
+    hill: {vmax: 1.0, k: 20000, slope: 1.0, reference_spend: 14500}
+    monthly_budget: {default: 440000, "2025-10": 540000, "2025-12": 480000, "2026-06": 500000, "2026-10": 460000, "2026-11": 560000}
+    campaigns:
+      - key: fb_prospecting
+        name: NW | FB | Prospecting - Broad
+        budget_share: 0.7
+        ad_sets:
+          - key: fb_women_metro
+            name: Women 25-44 Metro
+            region: Maharashtra
+            cpm: 115
+            ctr: 0.012
+            intent: 1.0
+            audience_size: 40000
+            age_mix: {"18-24": 0.1, "25-34": 0.45, "35-44": 0.35, "45-54": 0.1}
+            creatives:
+              - {key: fb_women_metro_c1, name: Video | Festive Lookbook 15s, weight: 0.4, ctr_factor: 1.1}
+              - {key: fb_women_metro_c2, name: Carousel | Bestseller Kurtas, weight: 0.35, ctr_factor: 1.0}
+              - {key: fb_women_metro_c3, name: Static | Flat 20% Off, weight: 0.25, ctr_factor: 0.9}
+          - key: fb_lookalike
+            name: Lookalike 1% - Purchasers
+            region: Karnataka
+            cpm: 120
+            ctr: 0.012
+            intent: 1.05
+            audience_size: 45000
+            creatives:
+              - {key: fb_lookalike_c1, name: Video | Customer Stories, weight: 0.4, ctr_factor: 1.05}
+              - {key: fb_lookalike_c2, name: Carousel | New Arrivals, weight: 0.35, ctr_factor: 1.0}
+              - {key: fb_lookalike_c3, name: Static | Free Shipping 999+, weight: 0.25, ctr_factor: 0.9}
+      - key: fb_retargeting
+        name: NW | FB | Retargeting
+        budget_share: 0.3
+        ad_sets:
+          - key: fb_cart_abandoners
+            name: Cart Abandoners 14d
+            region: All India
+            cpm: 180
+            ctr: 0.02
+            intent: 1.9
+            audience_size: 12000
+            budget_share: 0.55
+            creatives:
+              - {key: fb_cart_c1, name: DPA | Still Thinking About It, weight: 0.6, ctr_factor: 1.05}
+              - {key: fb_cart_c2, name: Static | 10% Off Your Cart, weight: 0.4, ctr_factor: 0.95}
+          - key: fb_viewers
+            name: Product Viewers 30d
+            region: All India
+            cpm: 170
+            ctr: 0.017
+            intent: 1.5
+            audience_size: 15000
+            budget_share: 0.45
+            creatives:
+              - {key: fb_viewers_c1, name: DPA | Recently Viewed, weight: 0.55, ctr_factor: 1.0}
+              - {key: fb_viewers_c2, name: Video | Styling Tips, weight: 0.45, ctr_factor: 1.0}
+
+  - key: instagram
+    name: Instagram
+    source: meta_ads
+    placement: instagram
+    web_source: instagram / paid_social
+    attribution_ratio: 1.25
+    mobile_share: 0.97
+    festive_cpm_sensitivity: 1.2
+    hill: {vmax: 1.0, k: 11000, slope: 1.0, reference_spend: 10500}
+    monthly_budget: {default: 320000, "2025-10": 400000, "2025-12": 340000, "2026-06": 360000, "2026-10": 340000, "2026-11": 400000}
+    campaigns:
+      - key: ig_reels
+        name: NW | IG | Reels - Festive Edit
+        budget_share: 0.65
+        ad_sets:
+          - key: ig_reels_young
+            name: Women 18-34 Reels
+            region: Delhi
+            cpm: 135
+            ctr: 0.009
+            intent: 0.8
+            audience_size: 30000
+            age_mix: {"18-24": 0.45, "25-34": 0.4, "35-44": 0.1, "45-54": 0.05}
+            creatives:
+              - {key: ig_reels_young_c1, name: Reel | Get Ready With Me - Kurta, weight: 0.4, ctr_factor: 1.1}
+              - {key: ig_reels_young_c2, name: Reel | 3 Ways To Style A Dupatta, weight: 0.35, ctr_factor: 1.0}
+              - {key: ig_reels_young_c3, name: Reel | Creator Haul, weight: 0.25, ctr_factor: 0.9}
+          - key: ig_interest_ethnic
+            name: Interest - Ethnic Fashion
+            region: Tamil Nadu
+            cpm: 130
+            ctr: 0.0095
+            intent: 0.85
+            audience_size: 32000
+            creatives:
+              - {key: ig_interest_c1, name: Reel | Festive Saree Drape, weight: 0.4, ctr_factor: 1.05}
+              - {key: ig_interest_c2, name: Reel | Behind The Weave, weight: 0.35, ctr_factor: 1.0}
+              - {key: ig_interest_c3, name: Reel | Price Reveal, weight: 0.25, ctr_factor: 0.95}
+      - key: ig_stories
+        name: NW | IG | Stories - New Arrivals
+        budget_share: 0.35
+        ad_sets:
+          - key: ig_stories_broad
+            name: Stories Broad 22-45
+            region: All India
+            cpm: 125
+            ctr: 0.008
+            intent: 0.8
+            audience_size: 28000
+            creatives:
+              - {key: ig_stories_c1, name: Story | Swipe Up New Drop, weight: 0.55, ctr_factor: 1.0}
+              - {key: ig_stories_c2, name: Story | Countdown Sale, weight: 0.45, ctr_factor: 1.0}

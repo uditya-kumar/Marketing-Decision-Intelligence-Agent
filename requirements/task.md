@@ -36,31 +36,31 @@ Tasks are small (≈ 0.5–1 day). Tick `[x]` when **Done when** passes. Refs �
 
 ## Phase 1 — Synthetic Data Generator — FR-2
 
-- [ ] **1.1** `generator/` uv package; `world.yaml` (NovaWear channels, campaigns, ad sets, creatives, segments).
+- [x] **1.1** `generator/` uv package; `world.yaml` (NovaWear channels, campaigns, ad sets, creatives, segments).
   Done when: config loads into typed models.
-- [ ] **1.2** Seeded demand model with weekly seasonality + noise.
+- [x] **1.2** Seeded demand model with weekly seasonality + noise.
   Done when: same seed ⇒ identical output (test).
-- [ ] **1.3** Spend → impressions → clicks → conversions → revenue chain per ad set.
+- [x] **1.3** Spend → impressions → clicks → conversions → revenue chain per ad set.
   Done when: KPIs in realistic ranges (test).
-- [ ] **1.4** Diminishing returns (Hill) per channel.
+- [x] **1.4** Diminishing returns (Hill) per channel.
   Done when: 2× spend < 2× conversions (test).
-- [ ] **1.5** Frequency-driven creative fatigue.
+- [x] **1.5** Frequency-driven creative fatigue.
   Done when: CTR decay visible in a plot script.
-- [ ] **1.6** Festive calendar multipliers (Diwali, EOSS).
+- [x] **1.6** Festive calendar multipliers (Diwali, EOSS).
   Done when: spikes on configured dates.
-- [ ] **1.7** Web funnel + store orders linked to ad traffic; platform conversions ≠ store orders by a realistic attribution ratio.
+- [x] **1.7** Web funnel + store orders linked to ad traffic; platform conversions ≠ store orders by a realistic attribution ratio.
   Done when: store orders reconcile within tolerance.
-- [ ] **1.8** Scenario framework + `ground_truth.json` recorder.
+- [x] **1.8** Scenario framework + `ground_truth.json` recorder.
   Done when: a no-op scenario writes an entry.
-- [ ] **1.9** Scenarios: `creative_fatigue`, `audience_mismatch`, `landing_page_break`.
+- [x] **1.9** Scenarios: `creative_fatigue`, `audience_mismatch`, `landing_page_break`.
   Done when: each produces the expected pattern (test).
-- [ ] **1.10** Scenarios: `cpc_spike`, `channel_opportunity`, `tracking_break`, `budget_overpace`.
+- [x] **1.10** Scenarios: `cpc_spike`, `channel_opportunity`, `tracking_break`, `budget_overpace`.
   Done when: same.
-- [ ] **1.11** Exporters in platform shapes: `google_ads.csv`, `meta_ads.csv`, `web_analytics.csv`, `store_orders.csv`.
+- [x] **1.11** Exporters in platform shapes: `google_ads.csv`, `meta_ads.csv`, `web_analytics.csv`, `store_orders.csv`.
   Done when: column names resemble real exports.
-- [ ] **1.12** CLI: `novawear-sim backfill --days 180 --seed 42` and `batch --from <date> --days 7`.
+- [x] **1.12** CLI: `novawear-sim backfill --days 180 --seed 42` and `batch --from <date> --days 7`.
   Done when: both commands write CSVs + ground truth.
-- [ ] **1.13** `scenarios.yaml` evaluation schedule (~50 events + no-issue windows) and a short **demo** schedule.
+- [x] **1.13** `scenarios.yaml` evaluation schedule (~50 events + no-issue windows) and a short **demo** schedule.
   Done when: both schedules generate.
 
 ---

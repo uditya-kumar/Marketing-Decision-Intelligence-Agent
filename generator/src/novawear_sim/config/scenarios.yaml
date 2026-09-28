@@ -1,0 +1,83 @@
+# Named schedules of injected scenarios. Each event says what breaks (or improves), where and
+# when; the generator records it in ground_truth.json, which only evaluation/ may read.
+#
+#   type     scenario kind (see novawear_sim/scenarios/registry.py)
+#   start    first affected day; `days` is the inclusive length
+#   target   source / channel / campaign / ad_set / creative (+ device / age_group where used)
+#   params   optional overrides of the scenario's defaults
+
+schedules:
+  demo:
+    description: >-
+      Storyline for the dashboard. The backfill ends 2026-10-14 with Meta over-pacing its October
+      budget, an Instagram creative fatiguing and PMax showing headroom; batch 1 (10-15..10-21)
+      shows the creative recovering after rotation, and batch 2 (10-22..10-28) a Meta tracking break.
+    events:
+      - {id: demo_01, type: creative_fatigue, start: 2026-07-06, days: 14, target: {creative: ig_reels_young_c1}}
+      - {id: demo_02, type: landing_page_break, start: 2026-08-10, days: 4, target: {channel: meta_ads, device: mobile}}
+      - {id: demo_03, type: no_issue, start: 2026-08-24, days: 14, target: {}}
+      - {id: demo_04, type: audience_mismatch, start: 2026-09-10, days: 10, target: {ad_set: fb_lookalike, age_group: "18-24"}}
+      - {id: demo_05, type: channel_opportunity, start: 2026-09-22, days: 40, target: {campaign: g_pmax_catalogue}}
+      # 1.38 × 45% of October elapsed on the 14th ≈ 62% of the monthly budget spent.
+      - {id: demo_06, type: budget_overpace, start: 2026-10-01, days: 31, target: {channel: meta_ads}, params: {factor: 1.38}}
+      - {id: demo_07, type: creative_fatigue, start: 2026-10-04, days: 15, target: {creative: ig_interest_c1}}
+      - {id: demo_08, type: tracking_break, start: 2026-10-24, days: 7, target: {source: meta_ads}}
+
+  evaluation:
+    description: >-
+      Labelled benchmark over 2025-10-15..2026-10-14 (backfill --days 365): 44 injected events and
+      7 account-wide no-issue windows (three of them inside Diwali / EOSS, to catch false alarms on
+      festive spikes). Events on the same channel never overlap and keep a 3-day gap; injected
+      events avoid festive windows so the detected change is the scenario, not the calendar.
+    events:
+      - {id: eval_01, type: no_issue, start: 2025-10-15, days: 7, target: {}}
+      - {id: eval_02, type: channel_opportunity, start: 2025-10-26, days: 10, target: {channel: instagram}}
+      - {id: eval_03, type: channel_opportunity, start: 2025-10-30, days: 10, target: {channel: meta_ads}}
+      - {id: eval_04, type: tracking_break, start: 2025-11-04, days: 4, target: {source: google_ads}}
+      - {id: eval_05, type: no_issue, start: 2025-11-24, days: 7, target: {}}
+      - {id: eval_06, type: budget_overpace, start: 2025-12-04, days: 12, target: {channel: instagram}}
+      - {id: eval_07, type: landing_page_break, start: 2025-12-10, days: 4, target: {campaign: g_search_ethnic, device: mobile}}
+      - {id: eval_08, type: audience_mismatch, start: 2025-12-12, days: 7, target: {ad_set: fb_women_metro, age_group: "18-24"}}
+      - {id: eval_09, type: no_issue, start: 2025-12-22, days: 7, target: {}}
+      - {id: eval_10, type: landing_page_break, start: 2026-01-13, days: 4, target: {campaign: g_search_ethnic, device: desktop}}
+      - {id: eval_11, type: tracking_break, start: 2026-01-14, days: 4, target: {source: meta_ads}}
+      - {id: eval_12, type: channel_opportunity, start: 2026-01-27, days: 10, target: {channel: google_ads}}
+      - {id: eval_13, type: creative_fatigue, start: 2026-01-27, days: 10, target: {creative: fb_lookalike_c2}}
+      - {id: eval_14, type: creative_fatigue, start: 2026-01-27, days: 10, target: {creative: ig_reels_young_c2}}
+      - {id: eval_15, type: no_issue, start: 2026-02-09, days: 7, target: {}}
+      - {id: eval_16, type: audience_mismatch, start: 2026-02-20, days: 7, target: {ad_set: fb_lookalike, age_group: "18-24"}}
+      - {id: eval_17, type: tracking_break, start: 2026-02-21, days: 4, target: {source: google_ads}}
+      - {id: eval_18, type: cpc_spike, start: 2026-03-06, days: 6, target: {channel: instagram}}
+      - {id: eval_19, type: audience_mismatch, start: 2026-03-08, days: 7, target: {ad_set: fb_women_metro, age_group: "18-24"}}
+      - {id: eval_20, type: tracking_break, start: 2026-03-15, days: 4, target: {source: google_ads}}
+      - {id: eval_21, type: creative_fatigue, start: 2026-03-19, days: 10, target: {creative: ig_reels_young_c1}}
+      - {id: eval_22, type: cpc_spike, start: 2026-03-21, days: 6, target: {channel: meta_ads}}
+      - {id: eval_23, type: tracking_break, start: 2026-03-31, days: 4, target: {source: google_ads}}
+      - {id: eval_24, type: budget_overpace, start: 2026-04-04, days: 12, target: {channel: instagram}}
+      - {id: eval_25, type: landing_page_break, start: 2026-04-09, days: 4, target: {campaign: fb_retargeting, device: mobile}}
+      - {id: eval_26, type: creative_fatigue, start: 2026-04-16, days: 10, target: {creative: fb_viewers_c1}}
+      - {id: eval_27, type: audience_mismatch, start: 2026-04-20, days: 7, target: {ad_set: ig_stories_broad, age_group: "18-24"}}
+      - {id: eval_28, type: channel_opportunity, start: 2026-04-24, days: 10, target: {campaign: g_pmax_catalogue}}
+      - {id: eval_29, type: budget_overpace, start: 2026-05-02, days: 12, target: {channel: meta_ads}}
+      - {id: eval_30, type: landing_page_break, start: 2026-05-05, days: 4, target: {campaign: ig_stories, device: mobile}}
+      - {id: eval_31, type: no_issue, start: 2026-05-18, days: 7, target: {}}
+      - {id: eval_32, type: landing_page_break, start: 2026-05-31, days: 4, target: {channel: instagram, device: mobile}}
+      - {id: eval_33, type: budget_overpace, start: 2026-06-06, days: 12, target: {channel: meta_ads}}
+      - {id: eval_34, type: audience_mismatch, start: 2026-06-07, days: 7, target: {ad_set: ig_reels_young, age_group: "45-54"}}
+      - {id: eval_35, type: budget_overpace, start: 2026-06-07, days: 12, target: {channel: google_ads}}
+      - {id: eval_36, type: no_issue, start: 2026-06-22, days: 7, target: {}}
+      - {id: eval_37, type: landing_page_break, start: 2026-07-08, days: 4, target: {campaign: g_pmax_catalogue, device: mobile}}
+      - {id: eval_38, type: cpc_spike, start: 2026-07-12, days: 6, target: {campaign: ig_reels}}
+      - {id: eval_39, type: cpc_spike, start: 2026-07-17, days: 6, target: {channel: meta_ads}}
+      - {id: eval_40, type: cpc_spike, start: 2026-07-22, days: 6, target: {channel: instagram}}
+      - {id: eval_41, type: channel_opportunity, start: 2026-07-25, days: 10, target: {channel: google_ads}}
+      - {id: eval_42, type: cpc_spike, start: 2026-07-31, days: 6, target: {channel: meta_ads}}
+      - {id: eval_43, type: creative_fatigue, start: 2026-08-03, days: 10, target: {creative: ig_interest_c2}}
+      - {id: eval_44, type: creative_fatigue, start: 2026-08-18, days: 10, target: {creative: fb_viewers_c2}}
+      - {id: eval_45, type: creative_fatigue, start: 2026-08-21, days: 10, target: {creative: ig_interest_c3}}
+      - {id: eval_46, type: landing_page_break, start: 2026-08-25, days: 4, target: {campaign: g_search_brand, device: mobile}}
+      - {id: eval_47, type: no_issue, start: 2026-09-07, days: 7, target: {}}
+      - {id: eval_48, type: audience_mismatch, start: 2026-09-18, days: 7, target: {ad_set: ig_reels_young, age_group: "45-54"}}
+      - {id: eval_49, type: creative_fatigue, start: 2026-09-26, days: 10, target: {creative: fb_cart_c2}}
+      - {id: eval_50, type: channel_opportunity, start: 2026-09-29, days: 10, target: {campaign: g_search_brand}}
+      - {id: eval_51, type: audience_mismatch, start: 2026-10-01, days: 7, target: {ad_set: ig_stories_broad, age_group: "18-24"}}

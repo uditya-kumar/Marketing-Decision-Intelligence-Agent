@@ -31,9 +31,11 @@ uv sync
 cp .env.example .env          # fill in Neon + LLM values
 uv run uvicorn mdia.main:app --reload
 
-# generator
+# generator (see generator/README.md)
 cd generator
-uv run novawear-sim backfill --days 180 --seed 42
+uv sync
+uv run novawear-sim backfill --days 180 --seed 42      # -> output/backfill/
+uv run novawear-sim batch --from 2026-10-15 --days 7   # -> output/batch_2026-10-15/
 
 # frontend
 cd frontend

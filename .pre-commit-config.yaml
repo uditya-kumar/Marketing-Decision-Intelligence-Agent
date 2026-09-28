@@ -37,6 +37,13 @@ repos:
         files: ^backend/src/.*\.py$
         pass_filenames: false
 
+      - id: mypy-generator
+        name: mypy (generator)
+        entry: bash -c 'cd generator && .venv/Scripts/python -m mypy src'
+        language: system
+        files: ^generator/src/.*\.py$
+        pass_filenames: false
+
       - id: eslint
         name: eslint (frontend)
         entry: bash scripts/frontend-check.sh lint

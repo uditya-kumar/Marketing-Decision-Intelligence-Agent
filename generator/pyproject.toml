@@ -3,13 +3,29 @@ name = "novawear-sim"
 version = "0.1.0"
 description = "Synthetic marketing data generator for MDIA (fake Meta/Google/GA4/Shopify exports)"
 requires-python = ">=3.12,<3.13"
-# Analytics/CLI dependencies (pandas, numpy, scipy, pyyaml, pydantic, typer) are
-# added in Phase 1 when the generator is built.
-dependencies = []
+dependencies = [
+    "numpy>=2.1",
+    "pandas>=2.2",
+    "scipy>=1.14",
+    "pydantic>=2.9",
+    "pyyaml>=6.0",
+    "typer>=0.15",
+]
 
 [project.scripts]
-# Wired up in Phase 1.12:
-# novawear-sim = "novawear_sim.cli:app"
+novawear-sim = "novawear_sim.cli:app"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "hypothesis>=6.115",
+    "pandas-stubs>=2.2",
+    "scipy-stubs>=1.14",
+    "types-pyyaml>=6.0",
+    "matplotlib>=3.9",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -21,3 +37,33 @@ packages = ["src/novawear_sim"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "C4", "SIM", "TCH", "RUF"]
+ignore = [
+    "B008", # typer options are declared as call defaults
+]
+allowed-confusables = ["×"]
+
+[tool.ruff.lint.flake8-type-checking]
+# Pydantic resolves field annotations at runtime, so their imports must stay real.
+runtime-evaluated-base-classes = ["pydantic.BaseModel"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+mypy_path = "src"
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+    "slow: runs a full multi-month simulation",
+]
