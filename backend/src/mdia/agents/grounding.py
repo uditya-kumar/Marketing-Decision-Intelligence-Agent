@@ -16,13 +16,15 @@ import re
 from typing import TYPE_CHECKING
 
 from mdia.domain.recommendations import ACTIONS, allowed
+from mdia.domain.reports import quotable
 from mdia.domain.wording import as_shown
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
 
-    from mdia.agents.schemas import LlmDiagnosis
+    from mdia.agents.schemas import LlmDiagnosis, LlmReport
     from mdia.domain.evidence import Evidence, Node
+    from mdia.domain.reports import WeeklyPayload
 
 # A quoted number may be rounded, but not by more than this.
 TOLERANCE_PCT = 2.0
@@ -43,6 +45,21 @@ def check(output: LlmDiagnosis, evidence: Evidence) -> list[str]:
         *_bad_action(output, evidence),
         *_bad_numbers(output, evidence),
     ]
+
+
+def check_report(report: LlmReport, payload: WeeklyPayload) -> list[str]:
+    """Everything wrong with the weekly narrative (FR-11.2); empty means it is grounded."""
+    permitted = quotable(payload)
+    violations = []
+    for index, paragraph in enumerate(report.paragraphs(), start=1):
+        for value in numbers_in(paragraph):
+            if not matches(value, permitted):
+                violations.append(
+                    f"Paragraph {index} quotes {value:g}, which is not in the report's facts;"
+                    " use only the numbers given."
+                )
+                break
+    return violations
 
 
 def allowed_numbers(evidence: Evidence) -> set[float]:
@@ -114,7 +131,7 @@ def _bad_numbers(output: LlmDiagnosis, evidence: Evidence) -> Iterator[str]:
     ids = evidence.signal_ids
     for field, text in _texts(output):
         for value in numbers_in(text, ignore=ids):
-            if not _matches(value, permitted):
+            if not matches(value, permitted):
                 yield (
                     f"The {field} quotes {value:g}, which is not in the evidence;"
                     " use only the numbers given."
@@ -131,7 +148,8 @@ def _texts(output: LlmDiagnosis) -> Iterator[tuple[str, str]]:
         yield f"alternative explanation {index}", alternative
 
 
-def _matches(value: float, permitted: Iterable[float]) -> bool:
+def matches(value: float, permitted: Iterable[float]) -> bool:
+    """Whether a quoted number is one of the permitted ones, allowing for rounding."""
     return any(
         math.isclose(abs(value), other, rel_tol=TOLERANCE_PCT / 100, abs_tol=TOLERANCE_ABS)
         for other in permitted

@@ -8,6 +8,8 @@ answer can be wrong here without a wrong number ever reaching a user.
 
 from __future__ import annotations
 
+from typing import Annotated
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from mdia.domain.diagnosis import Cause
@@ -17,6 +19,12 @@ MAX_HYPOTHESES = 3
 MAX_ALTERNATIVES = 3
 # Long enough for two sentences; a paragraph is a sign the model is padding.
 MAX_TEXT = 400
+# The report is read, not studied: five lines for the founder and a section each below.
+MAX_SUMMARY_LINES = 5
+MAX_DETAIL_SECTIONS = 6
+MAX_PARAGRAPH = 700
+
+Paragraph = Annotated[str, Field(max_length=MAX_PARAGRAPH)]
 
 
 class LlmHypothesis(BaseModel):
@@ -58,3 +66,30 @@ class LlmDiagnosis(BaseModel):
     action_rationale: str = Field(
         max_length=MAX_TEXT, description="Why that action, in one or two sentences."
     )
+
+
+class LlmReport(BaseModel):
+    """The weekly report's prose (FR-11.2). The payload behind it is computed in code."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    summary: list[Paragraph] = Field(
+        min_length=1,
+        max_length=MAX_SUMMARY_LINES,
+        description=(
+            "The founder summary: at most five short lines, the first answering how the"
+            " week went. Quote only numbers from the report facts, exactly as written."
+        ),
+    )
+    detail: list[Paragraph] = Field(
+        min_length=1,
+        max_length=MAX_DETAIL_SECTIONS,
+        description=(
+            "The team detail: one paragraph per section, each starting with a short"
+            " heading and a full stop, in the order the facts are given."
+        ),
+    )
+
+    def paragraphs(self) -> list[str]:
+        """Every line the reader will see, for the grounding guard to check."""
+        return [*self.summary, *self.detail]

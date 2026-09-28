@@ -6,6 +6,7 @@ from mdia.models.experiments import Decision, Experiment
 from mdia.models.facts import FactAdDaily, FactStoreDaily, FactWebDaily
 from mdia.models.ingestion import IngestionRun
 from mdia.models.llm import LlmCall
+from mdia.models.reports import WeeklyReport
 from mdia.models.settings import BusinessSettings
 
 __all__ = [
@@ -23,4 +24,5 @@ __all__ = [
     "IngestionRun",
     "LlmCall",
     "Opportunity",
+    "WeeklyReport",
 ]

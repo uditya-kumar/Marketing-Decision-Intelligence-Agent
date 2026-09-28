@@ -150,13 +150,13 @@ Every screen gets its empty, loading and error states when it is built, not in a
 
 ## Phase 9 — Weekly Report (FR-13)
 
-- [ ] **9.1** `domain/reports.py`: weekly payload (KPIs vs goals, week-on-week, pacing, top opportunities, decisions, experiment results).
+- [x] **9.1** `domain/reports.py`: weekly payload (KPIs vs goals, week-on-week, pacing, top opportunities, decisions, experiment results).
   Done when: the payload is unit-tested against fixtures.
-- [ ] **9.2** `agents/report.py` graph: `narrate (LLM) → ground_check ⟲ → template fallback`.
+- [x] **9.2** `agents/report.py` graph: `narrate (LLM) → ground_check ⟲ → template fallback`.
   Done when: every number in the text matches the payload.
-- [ ] **9.3** `reports` table, `POST /reports/weekly`, `GET /reports[/{id}]`.
+- [x] **9.3** `reports` table, `POST /reports/weekly`, `GET /reports[/{id}]`.
   Done when: past reports are listed.
-- [ ] **9.4** Reports page: week picker, a founder summary at the top and team detail below, copy as Markdown, print styles.
+- [x] **9.4** Reports page: week picker, a founder summary at the top and team detail below, copy as Markdown, print styles.
   Done when: **Demo 5** — the Friday report in one click.
 
 ---

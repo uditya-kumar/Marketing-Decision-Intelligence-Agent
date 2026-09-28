@@ -14,6 +14,7 @@ from mdia.api.routes import (
     ingestion,
     metrics,
     opportunities,
+    reports,
     settings,
     today,
     trust,
@@ -27,5 +28,6 @@ api_router.include_router(metrics.router)
 api_router.include_router(opportunities.router)
 api_router.include_router(experiments.router)
 api_router.include_router(decisions.router)
+api_router.include_router(reports.router)
 api_router.include_router(today.router)
 api_router.include_router(trust.router)

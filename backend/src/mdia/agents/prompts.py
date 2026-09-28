@@ -12,12 +12,14 @@ from typing import TYPE_CHECKING
 from mdia.domain.diagnosis import CAUSE_LABELS
 from mdia.domain.kpi import label
 from mdia.domain.recommendations import ACTION_TYPES, allowed
+from mdia.domain.report_text import template, week_text
 from mdia.domain.wording import rupees, value_text
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from mdia.domain.evidence import Evidence, Node
+    from mdia.domain.reports import WeeklyPayload
 
 # Bumped whenever the wording changes, so a stored answer can be traced to its prompt.
 DIAGNOSIS_PROMPT_VERSION = "diagnosis-v1"
@@ -32,6 +34,45 @@ Rules you must follow:
 - Say what the evidence is consistent with. Never claim a cause is proven.
 - Be brief: one or two sentences per field, in plain language a founder would use.
 """
+
+
+REPORT_PROMPT_VERSION = "report-v1"
+
+REPORT_SYSTEM = """You are writing a marketing team's weekly report from prepared facts.
+
+Rules you must follow:
+- Use only the facts given. Never state a number that is not in them, and copy the
+  numbers you do use exactly as they are written, including the ₹, % and x units.
+- Never add a number of your own: no totals, no averages, no percentages you worked out.
+- Do not repeat a number from a decision's reason; those are quotes, not this week's facts.
+- Never say why something happened beyond what the facts say, and never promise a result.
+- The summary is for a founder: at most five short lines, the first one the answer.
+- The detail is for the team: one paragraph per section, keeping the section order and
+  covering every row given, in plain language.
+- Open each detail paragraph with that section's heading, and add no section of your own:
+  the summary is already written above the detail, so never repeat it as a section.
+"""
+
+
+def report_prompt(payload: WeeklyPayload) -> str:
+    """The week's facts as the model sees them, in the same words the fallback uses."""
+    text = template(payload)
+    return "\n".join(
+        [
+            f"Week: {payload.week.days} days to {week_text(payload.week.end)}",
+            f"Issues cost this week: {rupees(payload.issue_cost)}",
+            f"Opportunities not yet taken: {rupees(payload.win_upside)}",
+            f"Data trust warning in force: {'yes' if payload.trust_warning else 'no'}",
+            "",
+            "The summary, as facts you may state and nothing else:",
+            *(f"- {line}" for line in text.summary),
+            "",
+            "The detail sections, in this order, each already headed:",
+            *(f"- {line}" for line in text.detail),
+            "",
+            "Write the same report in better words. Keep every number exactly as above.",
+        ]
+    )
 
 
 def diagnosis_prompt(evidence: Evidence) -> str:

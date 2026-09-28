@@ -67,7 +67,7 @@ export default function AppLayout() {
 
   return (
     <div className="flex min-h-svh bg-parchment text-ink">
-      <aside className="sticky top-0 flex h-svh w-60 shrink-0 flex-col gap-5 border-r border-hairline bg-bone px-3 py-5">
+      <aside className="sticky top-0 flex h-svh w-60 shrink-0 flex-col gap-5 border-r border-hairline bg-bone px-3 py-5 print:hidden">
         <Brand />
         <nav className="flex flex-col gap-0.5">
           {primaryNav.map((item) => (
@@ -81,7 +81,7 @@ export default function AppLayout() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-hairline px-10 py-3.5">
+        <header className="flex items-center justify-between border-b border-hairline px-10 py-3.5 print:hidden">
           <span className="text-ink">{pageTitle(pathname)}</span>
           <div className="flex items-center gap-5">
             <AsOfDate />
@@ -94,7 +94,7 @@ export default function AppLayout() {
           </div>
         </header>
 
-        <main className="flex-1 px-14 pt-12 pb-16">
+        <main className="flex-1 px-14 pt-12 pb-16 print:p-0">
           <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-10">
             <Outlet />
           </div>
