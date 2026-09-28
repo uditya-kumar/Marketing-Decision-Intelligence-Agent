@@ -90,3 +90,17 @@ markers = [
     "unit: pure domain / fast unit tests (no I/O)",
     "integration: hits the Neon 'test' branch; requires DATABASE_URL_TEST",
 ]
+
+[tool.coverage.run]
+# Only the pure functions are measured: they are the part that has to be right whatever
+# the LLM or the database does, so ``pytest --cov`` reports on them alone (NFR-9).
+source = ["src/mdia/domain"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+
+[dependency-groups]
+dev = [
+    "pytest-cov>=7.1.0",
+]
