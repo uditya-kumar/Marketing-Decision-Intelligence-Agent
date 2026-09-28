@@ -177,7 +177,7 @@ Every screen gets its empty, loading and error states when it is built, not in a
 
 - [x] **11.1** One API error schema, toasts and error boundaries; an LLM outage shows the labelled rules result.
 - [x] **11.2** `domain/` coverage ≥ 80 %; Vitest for `format.ts` and the key components.
-- [ ] **11.3** Demo script: seeded demo schedule + upload order for the "Monday morning" story.
+- [x] **11.3** Demo script: seeded demo schedule + upload order for the "Monday morning" story.
 - [ ] **11.4** `docs/architecture.md` (deterministic-first, grounding guard, trust gating) + README setup/run/demo.
 - [ ] **11.5** Slides + a dress rehearsal from a clean clone.
 
