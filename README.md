@@ -1,0 +1,51 @@
+# MDIA — Marketing Decision Intelligence Agent
+
+A decision-intelligence system for marketing teams. Not a chatbot — chat is a secondary side panel.
+
+```
+CSV exports → Trusted KPIs → Goal-aware signals → Evidence-backed hypotheses
+            → Recommendations → Experiments → Outcomes → Decision memory
+```
+
+**Deterministic first:** metrics, detection, decomposition, trust checks, pacing, confidence,
+simulation and experiment evaluation are code. The LLM only reasons over verified evidence and
+writes narrative — it never produces a number shown to users.
+
+## Packages
+
+| Package | Purpose |
+|---|---|
+| `generator/` | Synthetic CSV tool — "fake" Meta / Google / GA4 / Shopify exports + `ground_truth.json` |
+| `backend/` | FastAPI + LangGraph service (API, domain logic, agents) |
+| `evaluation/` | The only code that reads `ground_truth.json` |
+| `frontend/` | React 19 + Vite + TypeScript UI |
+
+## Getting started
+
+Requires: Python 3.12, [uv](https://docs.astral.sh/uv/), Node 20+, npm.
+
+```bash
+# backend
+cd backend
+uv sync
+cp .env.example .env          # fill in Neon + LLM values
+uv run uvicorn mdia.main:app --reload
+
+# generator
+cd generator
+uv run novawear-sim backfill --days 180 --seed 42
+
+# frontend
+cd frontend
+npm install
+npm run dev
+```
+
+## Documentation
+
+- `requirements/requirements.md` — what to build (FR/NFR IDs, data model, structure, API)
+- `requirements/task.md` — build order
+- `requirements/UI.md` — screens, flows, layout
+- `requirements/designSystem.md` — visual tokens
+- `CLAUDE.md` — agent guide & house rules
+- `docs/` — architecture and ADRs
