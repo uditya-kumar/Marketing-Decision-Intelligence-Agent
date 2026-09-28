@@ -109,7 +109,7 @@ class MetricsService:
         trend = trailing(as_of, TREND_DAYS)
         frame = self._daily(Period(min(trend.start, current.previous().start), as_of))
         now, before = _totals(frame, current), _totals(frame, current.previous())
-        targets = _targets(settings, as_of)
+        targets = account_targets(settings, as_of)
         summaries = [
             KpiSummary(
                 metric,
@@ -182,9 +182,11 @@ def _series(
     return MetricSeries(key, name, now, before, change_pct(before, now), points)
 
 
-def _targets(settings: BusinessSettings | None, as_of: dt.date) -> dict[Metric, float]:
-    """Goal markers for the Today strip. MER is judged against break-even, and revenue
-    against the week's share of the monthly goal."""
+def account_targets(settings: BusinessSettings | None, as_of: dt.date) -> dict[Metric, float]:
+    """Account-wide goals for a seven-day window, shared by the Today strip and FR-6.
+
+    MER is judged against break-even, and revenue against the week's share of the
+    monthly goal."""
     if settings is None:
         return {}
     targets: dict[Metric, float] = {"mer": break_even_roas(float(settings.gross_margin_pct))}

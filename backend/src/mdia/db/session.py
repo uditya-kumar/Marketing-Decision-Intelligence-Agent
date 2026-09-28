@@ -6,6 +6,7 @@ requires a live database. Use :func:`get_session` as a FastAPI dependency.
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
@@ -30,13 +31,20 @@ def _get_sessionmaker() -> sessionmaker[Session]:
     return sessionmaker(bind=get_engine(), autoflush=False, expire_on_commit=False)
 
 
-def get_session() -> Iterator[Session]:
-    """FastAPI dependency yielding a session that is always closed."""
+@contextmanager
+def session_scope() -> Iterator[Session]:
+    """A session for work outside a request, such as a background task."""
     session = _get_sessionmaker()()
     try:
         yield session
     finally:
         session.close()
+
+
+def get_session() -> Iterator[Session]:
+    """FastAPI dependency yielding a session that is always closed."""
+    with session_scope() as session:
+        yield session
 
 
 def check_database() -> bool:

@@ -3,9 +3,28 @@ name = "mdia-eval"
 version = "0.1.0"
 description = "MDIA evaluation harness — the only code that reads ground_truth.json"
 requires-python = ">=3.12,<3.13"
-# Evaluation dependencies (pandas, numpy, matplotlib, scikit-learn, httpx) are
-# added in Phase 5 when the evaluation harness is built.
-dependencies = []
+dependencies = [
+    "mdia",
+    "pandas>=3.0.6",
+    "httpx>=0.27",
+    "typer>=0.15",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+mdia-eval = "mdia_eval.cli:app"
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "pandas-stubs>=3.0.5.260914",
+    "types-pyyaml>=6.0",
+]
+
+[tool.uv.sources]
+mdia = { path = "../backend", editable = true }
 
 [build-system]
 requires = ["hatchling"]
@@ -17,3 +36,19 @@ packages = ["src/mdia_eval"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "C4", "SIM", "TCH", "RUF"]
+allowed-confusables = ["×"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+namespace_packages = true
+explicit_package_bases = true
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

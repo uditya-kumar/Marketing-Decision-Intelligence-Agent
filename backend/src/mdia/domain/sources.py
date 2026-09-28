@@ -14,6 +14,14 @@ SOURCES: tuple[Source, ...] = get_args(Source)
 Channel = Literal["google_ads", "meta_ads"]
 CHANNELS: tuple[Channel, ...] = get_args(Channel)
 
+# Web analytics reports a session source / medium; these are the paid ones, mapped to
+# the channel that paid for them so funnel rates can be read per channel.
+PAID_WEB_SOURCES: dict[str, Channel] = {
+    "google / cpc": "google_ads",
+    "facebook / paid_social": "meta_ads",
+    "instagram / paid_social": "meta_ads",
+}
+
 SOURCE_LABELS: dict[Source, str] = {
     "google_ads": "Google Ads",
     "meta_ads": "Meta Ads",

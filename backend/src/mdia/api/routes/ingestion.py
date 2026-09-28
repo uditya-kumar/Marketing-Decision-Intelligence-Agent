@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, File, Query, UploadFile
+from fastapi import APIRouter, BackgroundTasks, File, Query, UploadFile
 
 from mdia.api.deps import IngestionServiceDep  # noqa: TC001 - FastAPI resolves it at runtime
 from mdia.schemas.ingestion import (
@@ -13,6 +13,7 @@ from mdia.schemas.ingestion import (
     TemplateOut,
     UploadResponse,
 )
+from mdia.services.analysis import run_analysis
 from mdia.services.ingestion import UploadedFile
 
 router = APIRouter(prefix="/ingestion", tags=["ingestion"])
@@ -22,10 +23,17 @@ router = APIRouter(prefix="/ingestion", tags=["ingestion"])
 def upload(
     files: Annotated[list[UploadFile], File(description="One or more platform CSV exports")],
     service: IngestionServiceDep,
+    background: BackgroundTasks,
 ) -> UploadResponse:
-    """Detect each file's source, load its valid rows and report the rejected ones."""
+    """Detect each file's source, load its valid rows and report the rejected ones.
+
+    New data means the signals are stale, so the analysis re-runs in the background.
+    """
     uploaded = [UploadedFile(f.filename or "upload.csv", f.file.read()) for f in files]
-    return UploadResponse.model_validate(service.upload(uploaded))
+    response = UploadResponse.model_validate(service.upload(uploaded))
+    if any(run.rows_accepted for run in response.runs):
+        background.add_task(run_analysis)
+    return response
 
 
 @router.get("/runs", response_model=list[IngestionRunOut])

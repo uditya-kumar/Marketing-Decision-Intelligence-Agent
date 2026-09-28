@@ -13,6 +13,7 @@ from mdia.models import (
     DimCreative,
     FactAdDaily,
     FactStoreDaily,
+    FactWebDaily,
 )
 from mdia.repositories.facts import AD_MEASURES
 
@@ -24,6 +25,8 @@ if TYPE_CHECKING:
     from mdia.domain.periods import Period
 
 type Row = dict[str, Any]
+
+WEB_MEASURES = ("sessions", "bounces", "add_to_cart", "checkout", "purchases")
 
 # Slice → (key column, display-name column, dimension table to join for the name).
 _SLICES: dict[Dimension, tuple[Any, Any, Any]] = {
@@ -55,6 +58,43 @@ class MetricsRepository:
                 stmt = stmt.join(table, table.id == key)
             stmt = stmt.group_by(FactAdDaily.date, key, name)
         return [dict(row) for row in self._session.execute(stmt.where(in_period)).mappings()]
+
+    def entity_daily(self, period: Period) -> list[Row]:
+        """Ad measures per day at the finest level the detectors work on (FR-6).
+
+        One wide result the whole sweep rolls up in pandas, rather than a query per
+        level: day × channel × campaign × ad set × creative × age group, with names.
+        """
+        keys = (
+            FactAdDaily.date,
+            FactAdDaily.channel_id,
+            FactAdDaily.campaign_id,
+            DimCampaign.name.label("campaign_name"),
+            FactAdDaily.ad_set_id,
+            DimAdSet.name.label("ad_set_name"),
+            FactAdDaily.creative_id,
+            DimCreative.name.label("creative_name"),
+            FactAdDaily.age_group,
+        )
+        stmt = (
+            select(*keys, *(_sum(m) for m in AD_MEASURES))
+            .join(DimCampaign, DimCampaign.id == FactAdDaily.campaign_id)
+            .join(DimAdSet, DimAdSet.id == FactAdDaily.ad_set_id)
+            .join(DimCreative, DimCreative.id == FactAdDaily.creative_id)
+            .where(FactAdDaily.date.between(period.start, period.end))
+            .group_by(*keys)
+        )
+        return [dict(row) for row in self._session.execute(stmt).mappings()]
+
+    def web_daily(self, period: Period) -> list[Row]:
+        """Funnel steps per day and session source / medium."""
+        sums = [func.sum(getattr(FactWebDaily, m)).label(m) for m in WEB_MEASURES]
+        stmt = (
+            select(FactWebDaily.date, FactWebDaily.source, *sums)
+            .where(FactWebDaily.date.between(period.start, period.end))
+            .group_by(FactWebDaily.date, FactWebDaily.source)
+        )
+        return [dict(row) for row in self._session.execute(stmt).mappings()]
 
     def store_daily(self, period: Period) -> list[Row]:
         """Store orders and net revenue per day, as ``store_orders`` / ``store_revenue``."""

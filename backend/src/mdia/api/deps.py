@@ -8,6 +8,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from mdia.db.session import get_session
+from mdia.services.analysis import AnalysisService
 from mdia.services.ingestion import IngestionService
 from mdia.services.metrics import MetricsService
 from mdia.services.settings import SettingsService
@@ -15,6 +16,13 @@ from mdia.services.today import TodayService
 from mdia.services.trust import TrustService
 
 SessionDep = Annotated[Session, Depends(get_session)]
+
+
+def get_analysis_service(session: SessionDep) -> AnalysisService:
+    return AnalysisService(session)
+
+
+AnalysisServiceDep = Annotated[AnalysisService, Depends(get_analysis_service)]
 
 
 def get_ingestion_service(session: SessionDep) -> IngestionService:

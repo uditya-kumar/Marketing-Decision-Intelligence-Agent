@@ -36,6 +36,8 @@ export interface paths {
     /**
      * Upload
      * @description Detect each file's source, load its valid rows and report the rejected ones.
+     *
+     *     New data means the signals are stale, so the analysis re-runs in the background.
      */
     post: operations['upload_api_v1_ingestion_upload_post']
     delete?: never
@@ -96,6 +98,26 @@ export interface paths {
      * @description Expected columns for every supported export, for the downloadable CSV templates.
      */
     get: operations['templates_api_v1_ingestion_templates_get']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/analysis/status': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Status
+     * @description Whether a run is in progress, and what the last one found.
+     */
+    get: operations['status_api_v1_analysis_status_get']
     put?: never
     post?: never
     delete?: never
@@ -215,6 +237,26 @@ export interface paths {
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
+    /**
+     * AnalysisStatusOut
+     * @description The latest run, or an empty one before anything has been analysed.
+     */
+    AnalysisStatusOut: {
+      /** Status */
+      status: ('running' | 'done' | 'failed') | null
+      /** As Of Date */
+      as_of_date: string | null
+      /** Signal Count */
+      signal_count: number
+      /** Opportunity Count */
+      opportunity_count: number
+      /** Started At */
+      started_at: string | null
+      /** Finished At */
+      finished_at: string | null
+      /** Error */
+      error: string | null
+    }
     /** Body_upload_api_v1_ingestion_upload_post */
     Body_upload_api_v1_ingestion_upload_post: {
       /**
@@ -361,9 +403,13 @@ export interface components {
             | 'roas'
             | 'aov'
             | 'frequency'
-            | 'bounce_rate'
             | 'mer'
             | 'store_aov'
+            | 'bounce_rate'
+            | 'atc_rate'
+            | 'checkout_rate'
+            | 'purchase_rate'
+            | 'web_cvr'
           )
         | (
             | 'impressions'
@@ -414,9 +460,13 @@ export interface components {
             | 'roas'
             | 'aov'
             | 'frequency'
-            | 'bounce_rate'
             | 'mer'
             | 'store_aov'
+            | 'bounce_rate'
+            | 'atc_rate'
+            | 'checkout_rate'
+            | 'purchase_rate'
+            | 'web_cvr'
           )
         | (
             | 'impressions'
@@ -797,6 +847,26 @@ export interface operations {
       }
     }
   }
+  status_api_v1_analysis_status_get: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AnalysisStatusOut']
+        }
+      }
+    }
+  }
   get_settings_api_v1_settings_get: {
     parameters: {
       query?: never
@@ -883,9 +953,13 @@ export interface operations {
               | 'roas'
               | 'aov'
               | 'frequency'
-              | 'bounce_rate'
               | 'mer'
               | 'store_aov'
+              | 'bounce_rate'
+              | 'atc_rate'
+              | 'checkout_rate'
+              | 'purchase_rate'
+              | 'web_cvr'
             )
           | (
               | 'impressions'

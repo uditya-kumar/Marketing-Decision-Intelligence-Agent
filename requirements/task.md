@@ -88,15 +88,15 @@ Every screen gets its empty, loading and error states when it is built, not in a
 
 ## Phase 5 — Signals & Opportunities (FR-6)
 
-- [ ] **5.1** `domain/signals.py` detectors: rolling-baseline change (with a minimum-sample guard), goal breach, funnel-step drop, and segment divergence (age group within an ad set).
+- [x] **5.1** `domain/signals.py` detectors: rolling-baseline change (with a minimum-sample guard), goal breach, funnel-step drop, and segment divergence (age group within an ad set).
   Done when: each detector has a positive and a negative unit test.
-- [ ] **5.2** Scoring (`|Δ| × ₹ impact`), a threshold, and suppression in festive windows and for `broken` sources.
+- [x] **5.2** Scoring (`|Δ| × ₹ impact`), a threshold, and suppression in festive windows and for `broken` sources.
   Done when: festive spikes and tracking-broken channels produce no performance signals.
-- [ ] **5.3** `domain/opportunities.py`: group signals by entity + window into opportunities, with a stable key for dedup.
+- [x] **5.3** `domain/opportunities.py`: group signals by entity + window into opportunities, with a stable key for dedup.
   Done when: one injected scenario gives one opportunity.
-- [ ] **5.4** `analysis_runs` + `opportunities` tables (signals, evidence, diagnosis and recommendation as JSONB); `AnalysisService.run()` runs as a background task after each upload; `GET /analysis/status`.
+- [x] **5.4** `analysis_runs` + `opportunities` tables (signals, evidence, diagnosis and recommendation as JSONB); `AnalysisService.run()` runs as a background task after each upload; `GET /analysis/status`.
   Done when: uploading the backfill stores opportunities and the status goes `running → done`.
-- [ ] **5.5** Evaluation v0 (`evaluation/`): upload the evaluation schedule, then compute detection precision/recall against `ground_truth.json`.
+- [x] **5.5** Evaluation v0 (`evaluation/`): upload the evaluation schedule, then compute detection precision/recall against `ground_truth.json`.
   Done when: the first report prints; thresholds are tuned toward §13.
 
 ---

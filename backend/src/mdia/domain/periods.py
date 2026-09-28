@@ -33,6 +33,9 @@ class Period:
     def __contains__(self, day: object) -> bool:
         return isinstance(day, dt.date) and self.start <= day <= self.end
 
+    def overlaps(self, other: Period) -> bool:
+        return self.start <= other.end and other.start <= self.end
+
 
 def trailing(end: dt.date, days: int) -> Period:
     """The ``days`` days ending on (and including) ``end``."""

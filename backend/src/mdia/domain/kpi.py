@@ -17,8 +17,10 @@ if TYPE_CHECKING:
     import pandas as pd
 
 Kpi = Literal[
-    "ctr", "cpc", "cpm", "cvr", "cpa", "roas", "aov", "frequency", "bounce_rate", "mer", "store_aov"
-]
+    "ctr", "cpc", "cpm", "cvr", "cpa", "roas", "aov", "frequency", "mer", "store_aov",
+    # Web funnel steps, each a rate on the step above it (FR-6.1 funnel detector).
+    "bounce_rate", "atc_rate", "checkout_rate", "purchase_rate", "web_cvr",
+]  # fmt: skip
 
 # Base measures that are shown as metrics in their own right.
 Measure = Literal[
@@ -53,6 +55,11 @@ KPI_DEFS: dict[Kpi, KpiDef] = {
     "aov": KpiDef("platform_revenue", "platform_conversions", higher_is_better=True),
     "frequency": KpiDef("impressions", "reach", higher_is_better=False),
     "bounce_rate": KpiDef("bounces", "sessions", higher_is_better=False),
+    "atc_rate": KpiDef("add_to_cart", "sessions", higher_is_better=True),
+    "checkout_rate": KpiDef("checkout", "add_to_cart", higher_is_better=True),
+    "purchase_rate": KpiDef("purchases", "checkout", higher_is_better=True),
+    # The whole web funnel in one number, for comparing channels.
+    "web_cvr": KpiDef("purchases", "sessions", higher_is_better=True),
     # Marketing efficiency ratio: what the store really took per rupee of ad spend.
     "mer": KpiDef("store_revenue", "spend", higher_is_better=True),
     "store_aov": KpiDef("store_revenue", "store_orders", higher_is_better=True),
@@ -69,6 +76,11 @@ _MEASURE_DIRECTION: dict[Measure, bool | None] = {
     "store_revenue": True,
     "store_orders": True,
 }
+
+
+def definition(metric: Metric) -> KpiDef | None:
+    """How ``metric`` is computed, or ``None`` when it is a base measure."""
+    return KPI_DEFS.get(metric)  # type: ignore[arg-type]
 
 
 def higher_is_better(metric: Metric) -> bool | None:
