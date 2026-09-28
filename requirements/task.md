@@ -7,7 +7,7 @@ Tasks are small (≈ 0.5–1 day). Tick `[x]` when **Done when** passes. Refs �
 
 ## Phase 0 — Foundation & Tooling
 
-- [ ] **0.1** Git init, `.gitignore` (Python, Node, `.env`, `generator/output/`), `README.md`.
+- [x] **0.1** Git init, `.gitignore` (Python, Node, `.env`, `generator/output/`), `README.md`.
   Done when: first commit exists.
 - [x] **0.2** Folder skeleton per requirements §10.
   Done when: tree matches §10.
@@ -23,13 +23,13 @@ Tasks are small (≈ 0.5–1 day). Tick `[x]` when **Done when** passes. Refs �
   Done when: empty migration applies on `dev`.
 - [x] **0.8** pytest (unit / integration / agents markers; integration on `test` branch).
   Done when: sample test per folder passes.
-- [ ] **0.9** `npm create vite@latest frontend` → React + TypeScript + React Compiler.
+- [x] **0.9** `npm create vite@latest frontend` → React + TypeScript + React Compiler.
   Done when: `npm run dev` serves starter.
-- [ ] **0.10** Tailwind v4 (`@tailwindcss/vite`), `@/` alias, `npx shadcn@latest init`.
+- [x] **0.10** Tailwind v4 (`@tailwindcss/vite`), `@/` alias, `npx shadcn@latest init`.
   Done when: shadcn `Button` renders.
-- [ ] **0.11** React Router, TanStack Query, Zod; `app/` with providers + layout shell (sidebar, top bar) per `UI.md §3`.
+- [x] **0.11** React Router, TanStack Query, Zod; `app/` with providers + layout shell (sidebar, top bar) per `UI.md §3`.
   Done when: all sidebar routes navigate to placeholder pages.
-- [ ] **0.12** pre-commit (Ruff, mypy, ESLint, Prettier).
+- [x] **0.12** pre-commit (Ruff, mypy, ESLint, Prettier).
   Done when: `pre-commit run --all-files` passes.
 
 ---
