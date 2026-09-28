@@ -71,6 +71,7 @@ function todayWith(overrides: Partial<Today> = {}): Today {
     pacing: { month: null, total: null, channels: [] },
     attention: [],
     wins: [],
+    experiments: { running: [], completed: [], awaiting: 0 },
     analysing: false,
     ...overrides,
   }

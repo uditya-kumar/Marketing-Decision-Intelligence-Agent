@@ -24,7 +24,7 @@ DiagnosisSource = Literal["llm", "rules"]
 SCORE = Numeric(16, 2)
 
 
-def _one_of(column: str, values: tuple[str, ...]) -> CheckConstraint:
+def one_of(column: str, values: tuple[str, ...]) -> CheckConstraint:
     allowed = ", ".join(f"'{value}'" for value in values)
     return CheckConstraint(f"{column} IN ({allowed})", name=column)
 
@@ -33,7 +33,7 @@ class AnalysisRun(Base):
     """One sweep of the detectors over the data, kicked off after an upload."""
 
     __tablename__ = "analysis_runs"
-    __table_args__ = (_one_of("status", get_args(AnalysisStatus)),)
+    __table_args__ = (one_of("status", get_args(AnalysisStatus)),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     status: Mapped[AnalysisStatus] = mapped_column(String(16))
@@ -55,9 +55,9 @@ class Opportunity(Base):
 
     __tablename__ = "opportunities"
     __table_args__ = (
-        _one_of("kind", ("issue", "win")),
-        _one_of("status", get_args(OpportunityStatus)),
-        _one_of("diagnosis_source", get_args(DiagnosisSource)),
+        one_of("kind", ("issue", "win")),
+        one_of("status", get_args(OpportunityStatus)),
+        one_of("diagnosis_source", get_args(DiagnosisSource)),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)

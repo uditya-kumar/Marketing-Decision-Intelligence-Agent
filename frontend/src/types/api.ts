@@ -253,6 +253,107 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/experiments': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List Experiments
+     * @description Every experiment, newest first: awaiting approval, running, and completed.
+     */
+    get: operations['list_experiments_api_v1_experiments_get']
+    put?: never
+    /**
+     * Draft Experiment
+     * @description Auto-fill an experiment from an opportunity's recommended action (FR-10.1).
+     */
+    post: operations['draft_experiment_api_v1_experiments_post']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/experiments/{experiment_id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get Experiment */
+    get: operations['get_experiment_api_v1_experiments__experiment_id__get']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/experiments/{experiment_id}/approve': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Approve Experiment
+     * @description Accept the change: the test starts running against the next days of data (FR-10.2).
+     */
+    post: operations['approve_experiment_api_v1_experiments__experiment_id__approve_post']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/experiments/{experiment_id}/reject': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Reject Experiment
+     * @description Turn the change down; the opportunity stays open.
+     */
+    post: operations['reject_experiment_api_v1_experiments__experiment_id__reject_post']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/decisions': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List Decisions
+     * @description Every approval, rejection and dismissal, newest first, with its chain.
+     */
+    get: operations['list_decisions_api_v1_decisions_get']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/today': {
     parameters: {
       query?: never
@@ -350,12 +451,57 @@ export interface components {
       readonly label: string
     }
     /**
+     * DecideIn
+     * @description An optional note on an approval or rejection; it goes to the decision log.
+     */
+    DecideIn: {
+      /** Reason */
+      reason?: string | null
+    }
+    /** DecisionListOut */
+    DecisionListOut: {
+      /** Decisions */
+      decisions: components['schemas']['DecisionOut'][]
+    }
+    /**
+     * DecisionOut
+     * @description One entry of the timeline: the call, the opportunity behind it, and the outcome.
+     */
+    DecisionOut: {
+      /** Id */
+      id: number
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind: 'approve' | 'reject' | 'dismiss'
+      /** Reason */
+      reason: string | null
+      /** Impact */
+      impact: number | null
+      /**
+       * At
+       * Format: date-time
+       */
+      at: string
+      opportunity: components['schemas']['OpportunityOut']
+      experiment: components['schemas']['ExperimentOut'] | null
+    }
+    /**
      * DismissIn
      * @description Why this is being set aside; it goes to the decision log.
      */
     DismissIn: {
       /** Reason */
       reason: string
+    }
+    /**
+     * DraftIn
+     * @description Which opportunity's recommendation to turn into an experiment (FR-10.1).
+     */
+    DraftIn: {
+      /** Opportunity Id */
+      opportunity_id: number
     }
     /** EntityOut */
     EntityOut: {
@@ -367,6 +513,99 @@ export interface components {
       name: string
       /** Channel */
       channel?: string | null
+    }
+    /** ExperimentListOut */
+    ExperimentListOut: {
+      /** Experiments */
+      experiments: components['schemas']['ExperimentOut'][]
+    }
+    /** ExperimentOut */
+    ExperimentOut: {
+      /** Id */
+      id: number
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'draft' | 'running' | 'completed' | 'rejected'
+      /**
+       * Action
+       * @enum {string}
+       */
+      action:
+        | 'pause_creative'
+        | 'rotate_creative'
+        | 'refine_audience'
+        | 'investigate_landing_page'
+        | 'fix_tracking'
+        | 'shift_budget'
+        | 'adjust_pacing'
+      /** Hypothesis */
+      hypothesis: string
+      /** Metric */
+      metric:
+        | (
+            | 'ctr'
+            | 'cpc'
+            | 'cpm'
+            | 'cvr'
+            | 'cpa'
+            | 'roas'
+            | 'aov'
+            | 'frequency'
+            | 'mer'
+            | 'store_aov'
+            | 'bounce_rate'
+            | 'atc_rate'
+            | 'checkout_rate'
+            | 'purchase_rate'
+            | 'web_cvr'
+          )
+        | (
+            | 'impressions'
+            | 'clicks'
+            | 'spend'
+            | 'platform_conversions'
+            | 'platform_revenue'
+            | 'store_revenue'
+            | 'store_orders'
+          )
+      /** Baseline */
+      baseline: number | null
+      /** Target */
+      target: number | null
+      /** Duration Days */
+      duration_days: number
+      /** Started On */
+      started_on: string | null
+      /** Ends On */
+      ends_on: string | null
+      progress: components['schemas']['ProgressOut'] | null
+      /** Verdict */
+      verdict: ('worked' | 'did_not_work' | 'inconclusive') | null
+      /** Before */
+      before: number | null
+      /** After */
+      after: number | null
+      /** Sample Days */
+      sample_days: number | null
+      /** Evaluated On */
+      evaluated_on: string | null
+      /** Reason */
+      reason: string | null
+      opportunity: components['schemas']['OpportunityOut']
+    }
+    /**
+     * ExperimentsTodayOut
+     * @description The Experiments strip: "Creative rotation · Day 4/7 · 1 awaiting approval".
+     */
+    ExperimentsTodayOut: {
+      /** Running */
+      running: components['schemas']['ExperimentOut'][]
+      /** Completed */
+      completed: components['schemas']['ExperimentOut'][]
+      /** Awaiting */
+      awaiting: number
     }
     /**
      * FestiveWindow
@@ -817,6 +1056,18 @@ export interface components {
        */
       end: string
     }
+    /**
+     * ProgressOut
+     * @description How far a running experiment has got: "day 3/7".
+     */
+    ProgressOut: {
+      /** Day */
+      day: number
+      /** Total */
+      total: number
+      /** Due */
+      due: boolean
+    }
     /** RecommendationOut */
     RecommendationOut: {
       /**
@@ -1059,6 +1310,7 @@ export interface components {
       attention: components['schemas']['OpportunityOut'][]
       /** Wins */
       wins: components['schemas']['OpportunityOut'][]
+      experiments: components['schemas']['ExperimentsTodayOut']
       /** Analysing */
       analysing: boolean
     }
@@ -1502,6 +1754,180 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  list_experiments_api_v1_experiments_get: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ExperimentListOut']
+        }
+      }
+    }
+  }
+  draft_experiment_api_v1_experiments_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DraftIn']
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ExperimentOut']
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  get_experiment_api_v1_experiments__experiment_id__get: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        experiment_id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ExperimentOut']
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  approve_experiment_api_v1_experiments__experiment_id__approve_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        experiment_id: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DecideIn']
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ExperimentOut']
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  reject_experiment_api_v1_experiments__experiment_id__reject_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        experiment_id: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DecideIn']
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ExperimentOut']
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  list_decisions_api_v1_decisions_get: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['DecisionListOut']
         }
       }
     }

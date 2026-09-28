@@ -8,6 +8,7 @@ import { formatShortDate } from '@/lib/format'
 import { entityLine } from '@/lib/opportunities'
 import { useOpportunity } from './api'
 import { CauseList } from './components/cause-list'
+import { CreateExperiment } from './components/create-experiment'
 import { DetailSkeleton } from './components/detail-skeleton'
 import { DismissForm } from './components/dismiss-form'
 import { EvidenceTree } from './components/evidence-tree'
@@ -120,7 +121,11 @@ export default function OpportunityDetailPage() {
                 recommendation={recommendation}
                 actions={
                   summary.status === 'open' ? (
-                    <DismissForm id={summary.id} defaultOpen={params.get('dismiss') === '1'} />
+                    <DismissForm
+                      id={summary.id}
+                      defaultOpen={params.get('dismiss') === '1'}
+                      primary={<CreateExperiment id={summary.id} />}
+                    />
                   ) : undefined
                 }
               />

@@ -135,15 +135,15 @@ Every screen gets its empty, loading and error states when it is built, not in a
 
 ## Phase 8 — Experiments & Decision Log (FR-11, FR-12)
 
-- [ ] **8.1** `experiments` + `decisions` tables; `POST /experiments` (auto-filled from an opportunity), `POST /experiments/{id}/approve|reject`, `GET /experiments`, `GET /decisions`.
+- [x] **8.1** `experiments` + `decisions` tables; `POST /experiments` (auto-filled from an opportunity), `POST /experiments/{id}/approve|reject`, `GET /experiments`, `GET /decisions`.
   Done when: approve, reject and dismiss each write a decision row.
-- [ ] **8.2** `domain/experiments.py`: before vs after on the primary metric, with a minimum sample → `worked | did_not_work | inconclusive`.
+- [x] **8.2** `domain/experiments.py`: before vs after on the primary metric, with a minimum sample → `worked | did_not_work | inconclusive`.
   Done when: unit tests cover all three verdicts.
-- [ ] **8.3** `AnalysisService` evaluates due experiments after each upload.
+- [x] **8.3** `AnalysisService` evaluates due experiments after each upload.
   Done when: uploading the next `batch` completes a running experiment.
-- [ ] **8.4** Experiments page (Awaiting approval · Running with day X/Y · Completed with verdict) + "Create experiment" on the opportunity page.
+- [x] **8.4** Experiments page (Awaiting approval · Running with day X/Y · Completed with verdict) + "Create experiment" on the opportunity page.
   Done when: the approve → running flow works in the UI.
-- [ ] **8.5** Decisions page: a timeline of decisions, each linking to its opportunity → experiment → outcome.
+- [x] **8.5** Decisions page: a timeline of decisions, each linking to its opportunity → experiment → outcome.
   Done when: **Demo 4** — approve → upload next week → "Worked ✓", visible in Decisions.
 
 ---

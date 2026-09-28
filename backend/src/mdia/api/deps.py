@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from mdia.db.session import get_session
 from mdia.services.analysis import AnalysisService
+from mdia.services.decisions import DecisionService
+from mdia.services.experiments import ExperimentService
 from mdia.services.ingestion import IngestionService
 from mdia.services.metrics import MetricsService
 from mdia.services.opportunities import OpportunityService
@@ -59,6 +61,20 @@ def get_opportunity_service(session: SessionDep) -> OpportunityService:
 
 
 OpportunityServiceDep = Annotated[OpportunityService, Depends(get_opportunity_service)]
+
+
+def get_experiment_service(session: SessionDep) -> ExperimentService:
+    return ExperimentService(session)
+
+
+ExperimentServiceDep = Annotated[ExperimentService, Depends(get_experiment_service)]
+
+
+def get_decision_service(session: SessionDep) -> DecisionService:
+    return DecisionService(session)
+
+
+DecisionServiceDep = Annotated[DecisionService, Depends(get_decision_service)]
 
 
 def get_today_service(session: SessionDep) -> TodayService:

@@ -17,6 +17,7 @@ from mdia.domain.periods import Period
 from mdia.domain.recommendations import band
 from mdia.domain.wording import title
 from mdia.repositories.analysis import AnalysisRepository
+from mdia.repositories.decisions import DecisionRepository
 
 if TYPE_CHECKING:
     import datetime as dt
@@ -96,6 +97,7 @@ class OpportunityService:
     def __init__(self, session: Session) -> None:
         self._session = session
         self._analysis = AnalysisRepository(session)
+        self._decisions = DecisionRepository(session)
 
     def find(
         self,
@@ -105,11 +107,15 @@ class OpportunityService:
         limit: int = LIST_LIMIT,
     ) -> list[OpportunitySummary]:
         rows = self._analysis.list(status=status, kind=kind, limit=limit)
-        return [_summary(row) for row in rows]
+        return [summary(row) for row in rows]
 
     def top(self, kind: OpportunityKind, limit: int = TODAY_LIMIT) -> list[OpportunitySummary]:
-        """The most urgent open ones of a kind, for the Today screen."""
-        return self.find(status=("open", "experimenting"), kind=kind, limit=limit)
+        """The most urgent ones of a kind still awaiting a decision, for the Today screen.
+
+        One being tested has had its decision, and Today's experiments strip carries it.
+        """
+        awaiting: tuple[OpportunityStatus] = ("open",)
+        return self.find(status=awaiting, kind=kind, limit=limit)
 
     def get(self, opportunity_id: int) -> OpportunityDetail:
         row = self._require(opportunity_id)
@@ -117,7 +123,7 @@ class OpportunityService:
         diagnosis = row.diagnosis or {}
         tree = evidence.get("tree")
         return OpportunityDetail(
-            summary=_summary(row),
+            summary=summary(row),
             tree=None if tree is None else _node(tree),
             hypotheses=[_hypothesis(item) for item in diagnosis.get("hypotheses") or []],
             alternatives=diagnosis.get("alternatives") or [],
@@ -129,11 +135,18 @@ class OpportunityService:
         )
 
     def dismiss(self, opportunity_id: int, reason: str) -> OpportunitySummary:
-        """Set it aside with a reason; the next run will not reopen it (FR-10.2)."""
-        self._require(opportunity_id)
+        """Set it aside with a reason; the next run will not reopen it (FR-10.2).
+
+        A dismissal is a decision like any other, so it joins the log even though it
+        proposes no change (FR-10.4).
+        """
+        row = self._require(opportunity_id)
         self._analysis.dismiss(opportunity_id, reason)
+        self._decisions.log(
+            "dismiss", opportunity_id=opportunity_id, reason=reason, impact=row.impact
+        )
         self._session.commit()
-        return _summary(self._require(opportunity_id))
+        return summary(self._require(opportunity_id))
 
     def _require(self, opportunity_id: int) -> Opportunity:
         row = self._analysis.get(opportunity_id)
@@ -142,7 +155,8 @@ class OpportunityService:
         return row
 
 
-def _summary(row: Opportunity) -> OpportunitySummary:
+def summary(row: Opportunity) -> OpportunitySummary:
+    """One stored opportunity as the list row and the head of the detail page."""
     kind = cast("OpportunityKind", row.kind)
     metric = cast("Metric", row.primary_metric)
     diagnosis = row.diagnosis or {}

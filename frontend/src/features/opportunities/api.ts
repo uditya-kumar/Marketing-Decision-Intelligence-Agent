@@ -49,6 +49,19 @@ export function useDismissOpportunity(id: number) {
   })
 }
 
+/** Turn the recommended action into an experiment, auto-filled by the backend (FR-10.1).
+ *  Asking twice returns the draft that already exists, so the button is safe to press again. */
+export function useCreateExperiment(id: number) {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: () => unwrap(api.POST('/api/v1/experiments', { body: { opportunity_id: id } })),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['experiments'] })
+      void client.invalidateQueries({ queryKey: ['today'] })
+    },
+  })
+}
+
 // The five dimensions `GET /metrics` can break a day down by; the rest are account-wide.
 const DIMENSIONS = ['channel', 'campaign', 'ad_set', 'creative', 'age_group'] as const
 type Dimension = (typeof DIMENSIONS)[number]

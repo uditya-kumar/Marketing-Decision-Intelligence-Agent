@@ -26,6 +26,7 @@ from mdia.repositories.facts import AD_MEASURES, FactRepository
 from mdia.repositories.llm_calls import LlmCallRepository
 from mdia.repositories.metrics import WEB_MEASURES, MetricsRepository
 from mdia.repositories.settings import SettingsRepository
+from mdia.services.experiments import ExperimentService
 from mdia.services.metrics import STORE_MEASURES, account_targets
 from mdia.services.opportunity_rows import opportunity_row
 from mdia.services.trust import TrustService
@@ -84,6 +85,7 @@ class AnalysisService:
         self._settings = SettingsRepository(session)
         self._trust = TrustService(session)
         self._llm_calls = LlmCallRepository(session)
+        self._experiments = ExperimentService(session)
 
     def status(self) -> AnalysisStatusView:
         run = self._analysis.latest_run()
@@ -112,6 +114,9 @@ class AnalysisService:
             found = self._analyse(as_of, trust)
             investigated = self._investigate(found, trust)
             self._store(run.id, found, investigated)
+            # After storing, so an experiment's verdict has the last word on its
+            # opportunity's status (FR-10.3).
+            self._experiments.evaluate_due(as_of, run.id)
             self._analysis.finish(
                 run.id,
                 status="done",

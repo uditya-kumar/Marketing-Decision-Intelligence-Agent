@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/common/page-header'
 import { attentionSummary } from '@/lib/opportunities'
 import { useToday } from './api'
 import { AttentionList } from './components/attention-list'
+import { ExperimentsStrip } from './components/experiments-strip'
 import { KpiStrip } from './components/kpi-strip'
 import { PacingCard } from './components/pacing-card'
 import { TrendChart } from './components/trend-chart'
@@ -102,6 +103,7 @@ export default function TodayPage() {
         <div className="flex flex-col gap-10">
           <AttentionList rows={data.attention} />
           <WinsList rows={data.wins} />
+          <ExperimentsStrip experiments={data.experiments} />
         </div>
         <PacingCard pacing={data.pacing} />
       </div>

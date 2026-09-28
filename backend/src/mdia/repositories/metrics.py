@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import case, func, select
+from sqlalchemy import ColumnElement, case, func, select
 
+from mdia.domain.sources import PAID_WEB_SOURCES
 from mdia.models import (
     DimAdSet,
     DimCampaign,
@@ -18,7 +20,9 @@ from mdia.models import (
 from mdia.repositories.facts import AD_MEASURES
 
 if TYPE_CHECKING:
-    from sqlalchemy import ColumnElement, Select
+    from collections.abc import Sequence
+
+    from sqlalchemy import Select
     from sqlalchemy.orm import Session
 
     from mdia.domain.kpi import Dimension
@@ -27,6 +31,30 @@ if TYPE_CHECKING:
 type Row = dict[str, Any]
 
 WEB_MEASURES = ("sessions", "bounces", "add_to_cart", "checkout", "purchases")
+STORE_SUMS = ("store_orders", "store_revenue")
+
+# Entity levels that are a column of the ad facts, and the column that holds them.
+_ENTITY_KEYS: dict[str, Any] = {
+    "channel": FactAdDaily.channel_id,
+    "campaign": FactAdDaily.campaign_id,
+    "ad_set": FactAdDaily.ad_set_id,
+    "creative": FactAdDaily.creative_id,
+}
+# Entity keys that are database ids rather than names, so the filter has to bind an int.
+_NUMERIC_LEVELS = frozenset({"campaign", "ad_set", "creative"})
+
+
+@dataclass(frozen=True, slots=True)
+class Totals:
+    """Base measures summed over a window, and the days of it that had any rows."""
+
+    measures: dict[str, float] = field(default_factory=dict)
+    days: int = 0
+
+    def merge(self, other: Totals) -> Totals:
+        """Measures from another table, and the fullest coverage either of them had."""
+        return Totals(self.measures | other.measures, max(self.days, other.days))
+
 
 # Slice → (key column, display-name column, dimension table to join for the name).
 _SLICES: dict[Dimension, tuple[Any, Any, Any]] = {
@@ -86,6 +114,49 @@ class MetricsRepository:
         )
         return [dict(row) for row in self._session.execute(stmt).mappings()]
 
+    def entity_totals(self, period: Period, level: str, key: str) -> Totals:
+        """Base measures for one entity over ``period``, for an experiment's verdict.
+
+        Which tables an entity can reach depends on its level: the store knows nothing
+        about which ad was clicked, and the web funnel is only attributable per session
+        source. A metric the entity cannot carry comes back missing, and FR-10.3 then
+        says inconclusive rather than guessing.
+        """
+        totals = Totals()
+        if level != "source":
+            totals = totals.merge(self._ad_totals(period, level, key))
+        if level == "account":
+            totals = totals.merge(self._store_totals(period))
+        sources = _web_sources(level, key)
+        if sources is not None:
+            totals = totals.merge(self._web_totals(period, sources))
+        return totals
+
+    def _ad_totals(self, period: Period, level: str, key: str) -> Totals:
+        stmt = select(*(_sum(m) for m in AD_MEASURES), _days()).where(
+            FactAdDaily.date.between(period.start, period.end)
+        )
+        for clause in _entity_filter(level, key):
+            stmt = stmt.where(clause)
+        return _totals(self._session.execute(stmt).mappings().one(), AD_MEASURES)
+
+    def _store_totals(self, period: Period) -> Totals:
+        stmt = select(
+            func.sum(FactStoreDaily.orders).label("store_orders"),
+            func.sum(FactStoreDaily.revenue).label("store_revenue"),
+            _days(FactStoreDaily.date),
+        ).where(FactStoreDaily.date.between(period.start, period.end))
+        return _totals(self._session.execute(stmt).mappings().one(), STORE_SUMS)
+
+    def _web_totals(self, period: Period, sources: tuple[str, ...]) -> Totals:
+        sums = [func.sum(getattr(FactWebDaily, m)).label(m) for m in WEB_MEASURES]
+        stmt = select(*sums, _days(FactWebDaily.date)).where(
+            FactWebDaily.date.between(period.start, period.end)
+        )
+        if sources:
+            stmt = stmt.where(FactWebDaily.source.in_(sources))
+        return _totals(self._session.execute(stmt).mappings().one(), WEB_MEASURES)
+
     def web_daily(self, period: Period) -> list[Row]:
         """Funnel steps per day and session source / medium."""
         sums = [func.sum(getattr(FactWebDaily, m)).label(m) for m in WEB_MEASURES]
@@ -104,6 +175,44 @@ class MetricsRepository:
             FactStoreDaily.revenue.label("store_revenue"),
         ).where(FactStoreDaily.date.between(period.start, period.end))
         return [dict(row) for row in self._session.execute(stmt).mappings()]
+
+
+def _days(column: Any = FactAdDaily.date) -> ColumnElement[Any]:
+    """How many distinct days the rows cover, which is the sample behind the totals."""
+    return func.count(column.distinct()).label("days")
+
+
+def _totals(row: Any, measures: Sequence[str]) -> Totals:
+    """One summed row as measures and coverage; a measure with no rows stays absent."""
+    found = {measure: float(row[measure]) for measure in measures if row[measure] is not None}
+    return Totals(found, int(row["days"] or 0))
+
+
+def _entity_filter(level: str, key: str) -> list[ColumnElement[bool]]:
+    """The ad-fact conditions that isolate one entity; the account needs none."""
+    column = _ENTITY_KEYS.get(level)
+    if column is not None:
+        return [column == (int(key) if level in _NUMERIC_LEVELS else key)]
+    if level == "age_group":
+        # A segment's key carries its ad set, because the label alone repeats across them.
+        ad_set, _, age_group = key.partition("|")
+        return [FactAdDaily.ad_set_id == int(ad_set), FactAdDaily.age_group == age_group]
+    return []
+
+
+def _web_sources(level: str, key: str) -> tuple[str, ...] | None:
+    """The session sources this entity's funnel numbers come from, or ``None`` for neither.
+
+    An empty tuple means every source, which is what an account-wide entity gets.
+    """
+    if level == "account":
+        return ()
+    if level == "source":
+        return (key,)
+    if level == "channel":
+        found = tuple(source for source, channel in PAID_WEB_SOURCES.items() if channel == key)
+        return found or None
+    return None
 
 
 def _sum(measure: str) -> ColumnElement[Any]:

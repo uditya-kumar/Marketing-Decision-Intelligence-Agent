@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Eyebrow } from '@/components/common/section'
@@ -6,8 +6,15 @@ import { useDismissOpportunity } from '../api'
 
 const MIN_REASON = 3
 
+type DismissFormProps = {
+  id: number
+  defaultOpen?: boolean
+  /** The other call on this row, which UI.md §5.2 puts first: Create experiment. */
+  primary?: ReactNode
+}
+
 /** Dismissing needs a reason: it goes in the decision log, and the detectors learn from it. */
-export function DismissForm({ id, defaultOpen = false }: { id: number; defaultOpen?: boolean }) {
+export function DismissForm({ id, defaultOpen = false, primary }: DismissFormProps) {
   const [open, setOpen] = useState(defaultOpen)
   const [reason, setReason] = useState('')
   const dismiss = useDismissOpportunity(id)
@@ -16,6 +23,7 @@ export function DismissForm({ id, defaultOpen = false }: { id: number; defaultOp
   if (!open) {
     return (
       <div className="flex items-center gap-4 border-t border-hairline pt-5">
+        {primary}
         <Button variant="outline" onClick={() => setOpen(true)}>
           Dismiss
         </Button>

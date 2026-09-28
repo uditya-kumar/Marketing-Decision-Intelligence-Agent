@@ -1,19 +1,9 @@
 import type { ReactNode } from 'react'
+import { actionLabel } from '@/lib/actions'
 import { formatInr } from '@/lib/format'
 import { metricLabel } from '@/lib/metrics'
 import { Eyebrow } from '@/components/common/section'
 import type { Recommendation } from '../api'
-
-// Display names for the action catalogue (FR-9.1); the action itself is chosen in the backend.
-const ACTIONS: Record<Recommendation['action'], string> = {
-  pause_creative: 'Pause this creative',
-  rotate_creative: 'Rotate in a fresh creative for the same audience',
-  refine_audience: 'Narrow the audience',
-  investigate_landing_page: 'Check the landing page for this traffic',
-  fix_tracking: 'Fix the tracking before acting on these numbers',
-  shift_budget: 'Move budget towards what is working',
-  adjust_pacing: 'Adjust the daily spend',
-}
 
 const RISKS: Record<Recommendation['risk'], string> = {
   low: 'Low · little to lose',
@@ -32,7 +22,7 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
 
 type RecommendationCardProps = {
   recommendation: Recommendation
-  /** Sits under the facts: Dismiss today, Create experiment once Phase 8 lands. */
+  /** Sits under the facts: Create experiment and Dismiss. */
   actions?: ReactNode
 }
 
@@ -42,7 +32,9 @@ export function RecommendationCard({ recommendation, actions }: RecommendationCa
   return (
     <div className="flex flex-col gap-5 rounded-lg border border-hairline bg-bone p-7">
       <div className="flex flex-col gap-2">
-        <h3 className="text-heading-sm font-normal text-ink">{ACTIONS[recommendation.action]}</h3>
+        <h3 className="text-heading-sm font-normal text-ink">
+          {actionLabel(recommendation.action)}
+        </h3>
         <p className="font-serif text-[17px] leading-[1.45] text-driftwood">
           {recommendation.rationale}
         </p>

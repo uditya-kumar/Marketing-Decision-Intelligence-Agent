@@ -118,6 +118,12 @@ class AnalysisRepository:
     def get(self, opportunity_id: int) -> Opportunity | None:
         return self._session.get(Opportunity, opportunity_id)
 
+    def set_status(self, opportunity_id: int, status: OpportunityStatus) -> None:
+        """Move one opportunity's status, as an experiment starting or ending does."""
+        self._session.execute(
+            update(Opportunity).where(Opportunity.id == opportunity_id).values(status=status)
+        )
+
     def dismiss(self, opportunity_id: int, reason: str) -> None:
         self._session.execute(
             update(Opportunity)
