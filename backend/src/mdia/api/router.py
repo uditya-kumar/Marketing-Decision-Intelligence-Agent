@@ -7,12 +7,13 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from mdia.api.routes import analysis, ingestion, metrics, settings, today, trust
+from mdia.api.routes import analysis, ingestion, metrics, opportunities, settings, today, trust
 
 api_router = APIRouter()
 api_router.include_router(ingestion.router)
 api_router.include_router(analysis.router)
 api_router.include_router(settings.router)
 api_router.include_router(metrics.router)
+api_router.include_router(opportunities.router)
 api_router.include_router(today.router)
 api_router.include_router(trust.router)

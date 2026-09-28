@@ -122,13 +122,13 @@ Every screen gets its empty, loading and error states when it is built, not in a
 
 ## Phase 7 — Opportunity UI & Today v2
 
-- [ ] **7.1** `GET /opportunities` (filter by status), `GET /opportunities/{id}`, `POST /opportunities/{id}/dismiss` (with a reason).
+- [x] **7.1** `GET /opportunities` (filter by status), `GET /opportunities/{id}`, `POST /opportunities/{id}/dismiss` (with a reason).
   Done when: the detail returns what happened, evidence, likely cause and recommendation as separate sections.
-- [ ] **7.2** Opportunities list page (All · Issues · Wins · Dismissed).
+- [x] **7.2** Opportunities list page (All · Issues · Wins · Dismissed).
   Done when: the filters work.
-- [ ] **7.3** Opportunity detail page in the `UI.md §5.2` order, with the evidence tree as an indented list, an `AiBlock` with a "grounded ✓" marker, and charts.
+- [x] **7.3** Opportunity detail page in the `UI.md §5.2` order, with the evidence tree as an indented list, an `AiBlock` with a "grounded ✓" marker, and charts.
   Done when: it renders for every scenario type.
-- [ ] **7.4** Today v2: trust → KPIs → Needs attention → Opportunities + Pacing → Experiments; an "All clear" state; an "Analysing…" state while a run is in progress.
+- [x] **7.4** Today v2: trust → KPIs → Needs attention → Opportunities + Pacing → Experiments; an "All clear" state; an "Analysing…" state while a run is in progress.
   Done when: **Demo 3** — "3 things need your attention", and clicking one shows *why*.
 
 ---

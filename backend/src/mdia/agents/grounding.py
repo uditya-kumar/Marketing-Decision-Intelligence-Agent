@@ -15,14 +15,14 @@ import math
 import re
 from typing import TYPE_CHECKING
 
-from mdia.domain.diagnosis import as_shown
 from mdia.domain.recommendations import ACTIONS, allowed
+from mdia.domain.wording import as_shown
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
 
     from mdia.agents.schemas import LlmDiagnosis
-    from mdia.domain.diagnosis import Evidence, Node
+    from mdia.domain.evidence import Evidence, Node
 
 # A quoted number may be rounded, but not by more than this.
 TOLERANCE_PCT = 2.0

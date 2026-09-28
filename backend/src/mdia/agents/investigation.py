@@ -26,7 +26,8 @@ from mdia.agents.schemas import LlmDiagnosis
 
 # ``Evidence``, ``Opportunity`` and ``TrustStatus`` are annotations only, but ``StateGraph``
 # resolves the state TypedDict's hints when the graph is built, so they must exist at runtime.
-from mdia.domain.diagnosis import Diagnosis, Evidence, Hypothesis, build_evidence, diagnose
+from mdia.domain.diagnosis import Diagnosis, Hypothesis, diagnose
+from mdia.domain.evidence import Evidence, build_evidence
 from mdia.domain.opportunities import Opportunity  # noqa: TC001
 from mdia.domain.recommendations import confidence_of, priority, recommend
 from mdia.domain.trust import TrustStatus  # noqa: TC001

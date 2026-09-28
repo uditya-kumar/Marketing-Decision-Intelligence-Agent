@@ -69,6 +69,9 @@ function todayWith(overrides: Partial<Today> = {}): Today {
     trend: [],
     trust: { as_of_date: '2026-10-14', sources: [fresh('meta_ads'), fresh('store_orders')] },
     pacing: { month: null, total: null, channels: [] },
+    attention: [],
+    wins: [],
+    analysing: false,
     ...overrides,
   }
 }

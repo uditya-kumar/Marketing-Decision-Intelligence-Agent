@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom'
 import AppLayout from './app-layout'
 import TodayPage from '@/features/today/page'
 import OpportunitiesPage from '@/features/opportunities/page'
+import OpportunityDetailPage from '@/features/opportunities/detail-page'
 import ExperimentsPage from '@/features/experiments/page'
 import DecisionsPage from '@/features/decisions/page'
 import ReportsPage from '@/features/reports/page'
@@ -14,6 +15,7 @@ export function AppRoutes() {
       <Route element={<AppLayout />}>
         <Route index element={<TodayPage />} />
         <Route path="opportunities" element={<OpportunitiesPage />} />
+        <Route path="opportunities/:id" element={<OpportunityDetailPage />} />
         <Route path="experiments" element={<ExperimentsPage />} />
         <Route path="decisions" element={<DecisionsPage />} />
         <Route path="reports" element={<ReportsPage />} />

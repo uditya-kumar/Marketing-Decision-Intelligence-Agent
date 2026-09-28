@@ -98,12 +98,29 @@ class AnalysisRepository:
         )
 
     def list(
-        self, status: Collection[OpportunityStatus] | None = None, limit: int = 100
+        self,
+        status: Collection[OpportunityStatus] | None = None,
+        kind: str | None = None,
+        limit: int = 100,
     ) -> Sequence[Opportunity]:
-        stmt = select(Opportunity).order_by(Opportunity.score.desc()).limit(limit)
+        """Opportunities, most urgent first; a row the LLM never reached has no priority."""
+        stmt = (
+            select(Opportunity)
+            .order_by(Opportunity.priority.desc().nullslast(), Opportunity.score.desc())
+            .limit(limit)
+        )
         if status:
             stmt = stmt.where(Opportunity.status.in_(status))
+        if kind:
+            stmt = stmt.where(Opportunity.kind == kind)
         return self._session.scalars(stmt).all()
 
     def get(self, opportunity_id: int) -> Opportunity | None:
         return self._session.get(Opportunity, opportunity_id)
+
+    def dismiss(self, opportunity_id: int, reason: str) -> None:
+        self._session.execute(
+            update(Opportunity)
+            .where(Opportunity.id == opportunity_id)
+            .values(status="dismissed", dismissed_reason=reason)
+        )

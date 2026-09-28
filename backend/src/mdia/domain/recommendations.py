@@ -11,13 +11,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, get_args
 
-from mdia.domain.diagnosis import dominant_chain, value_text
+from mdia.domain.evidence import dominant_chain
 from mdia.domain.kpi import label
+from mdia.domain.wording import value_text
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from mdia.domain.diagnosis import Cause, Diagnosis, Evidence
+    from mdia.domain.diagnosis import Cause, Diagnosis
+    from mdia.domain.evidence import Evidence
     from mdia.domain.kpi import Metric
     from mdia.domain.signals import EntityLevel
     from mdia.domain.trust import TrustStatus
@@ -35,6 +37,10 @@ Action = Literal[
 ACTION_TYPES: tuple[Action, ...] = get_args(Action)
 
 Risk = Literal["low", "medium", "high"]
+# How urgent an opportunity looks in a list, from its priority (see :func:`band`).
+Band = Literal["high", "medium", "low"]
+HIGH_PRIORITY = 100_000.0
+MEDIUM_PRIORITY = 25_000.0
 
 # Actions that stop spend outright, so a protected campaign may never receive one.
 HALTING: frozenset[Action] = frozenset({"pause_creative"})
@@ -193,6 +199,19 @@ def confidence_of(evidence: Evidence) -> float:
 def priority(impact: float, confidence_value: float) -> float:
     """FR-9.4: what to do first is what is at stake times how sure of it we are."""
     return impact * confidence_value
+
+
+def band(priority_value: float | None) -> Band:
+    """The priority as a list row shows it, so the dot is not a front-end judgement.
+
+    The thresholds are absolute rupees over a detection window: a lakh of weekly
+    exposure that we are confident about is what "deal with this today" means.
+    """
+    if priority_value is None:
+        return "low"
+    if priority_value >= HIGH_PRIORITY:
+        return "high"
+    return "medium" if priority_value >= MEDIUM_PRIORITY else "low"
 
 
 def recommend(

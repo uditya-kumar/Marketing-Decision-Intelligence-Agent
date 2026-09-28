@@ -7,6 +7,7 @@ import datetime as dt
 from pydantic import BaseModel, ConfigDict
 
 from mdia.schemas.metrics import KpiSummaryOut, PeriodOut, TrendPointOut
+from mdia.schemas.opportunities import OpportunityOut
 from mdia.schemas.trust import PacingViewOut, TrustOut
 
 
@@ -20,3 +21,6 @@ class TodayOut(BaseModel):
     trend: list[TrendPointOut]
     trust: TrustOut
     pacing: PacingViewOut
+    attention: list[OpportunityOut]
+    wins: list[OpportunityOut]
+    analysing: bool

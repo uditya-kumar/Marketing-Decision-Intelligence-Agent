@@ -4,14 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from mdia.domain.diagnosis import (
-    build_evidence,
-    build_tree,
-    diagnose,
-    dominant_chain,
-    is_protected,
-    rupees,
-)
+from mdia.domain.diagnosis import diagnose
+from mdia.domain.evidence import build_evidence, build_tree, dominant_chain, is_protected
+from mdia.domain.wording import rupees
 from tests.builders import BASELINE, CAMPAIGN, CREATIVE, SCENARIOS, creative_fatigue
 
 pytestmark = pytest.mark.unit

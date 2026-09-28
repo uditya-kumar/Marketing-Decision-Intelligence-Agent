@@ -6,7 +6,8 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from mdia.domain.diagnosis import build_evidence, diagnose
+from mdia.domain.diagnosis import diagnose
+from mdia.domain.evidence import build_evidence
 from mdia.domain.recommendations import (
     ACTIONS,
     HALTING,

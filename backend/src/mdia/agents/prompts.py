@@ -9,14 +9,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mdia.domain.diagnosis import CAUSE_LABELS, rupees, value_text
+from mdia.domain.diagnosis import CAUSE_LABELS
 from mdia.domain.kpi import label
 from mdia.domain.recommendations import ACTION_TYPES, allowed
+from mdia.domain.wording import rupees, value_text
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from mdia.domain.diagnosis import Evidence, Node
+    from mdia.domain.evidence import Evidence, Node
 
 # Bumped whenever the wording changes, so a stored answer can be traced to its prompt.
 DIAGNOSIS_PROMPT_VERSION = "diagnosis-v1"

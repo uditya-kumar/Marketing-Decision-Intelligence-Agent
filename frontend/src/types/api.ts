@@ -192,6 +192,67 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/opportunities': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List Opportunities
+     * @description Opportunities the last analysis found, most urgent first, filtered by status and kind.
+     */
+    get: operations['list_opportunities_api_v1_opportunities_get']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/opportunities/{opportunity_id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get Opportunity
+     * @description One opportunity in four sections: what happened, the evidence, the likely cause
+     *     and the recommended action, with the signals behind them.
+     */
+    get: operations['get_opportunity_api_v1_opportunities__opportunity_id__get']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/opportunities/{opportunity_id}/dismiss': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Dismiss Opportunity
+     * @description Set an opportunity aside with a reason, so a re-run does not raise it again.
+     */
+    post: operations['dismiss_opportunity_api_v1_opportunities__opportunity_id__dismiss_post']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/today': {
     parameters: {
       query?: never
@@ -289,6 +350,25 @@ export interface components {
       readonly label: string
     }
     /**
+     * DismissIn
+     * @description Why this is being set aside; it goes to the decision log.
+     */
+    DismissIn: {
+      /** Reason */
+      reason: string
+    }
+    /** EntityOut */
+    EntityOut: {
+      /** Level */
+      level: string
+      /** Key */
+      key: string
+      /** Name */
+      name: string
+      /** Channel */
+      channel?: string | null
+    }
+    /**
      * FestiveWindow
      * @description A sale or festival where big swings are expected, so signals are suppressed.
      */
@@ -347,6 +427,29 @@ export interface components {
       database: 'ok' | 'unavailable'
       /** Llm Provider */
       llm_provider: string
+    }
+    /** HypothesisOut */
+    HypothesisOut: {
+      /**
+       * Cause
+       * @enum {string}
+       */
+      cause:
+        | 'creative_fatigue'
+        | 'landing_page_break'
+        | 'cpc_spike'
+        | 'audience_mismatch'
+        | 'tracking_break'
+        | 'budget_overpace'
+        | 'channel_opportunity'
+        | 'conversion_drop'
+        | 'unknown'
+      /** Cause Label */
+      cause_label: string
+      /** Statement */
+      statement: string
+      /** Signal Ids */
+      signal_ids: string[]
     }
     /** IngestionRunOut */
     IngestionRunOut: {
@@ -483,6 +586,193 @@ export interface components {
       /** Series */
       series: components['schemas']['MetricSeriesOut'][]
     }
+    /**
+     * NodeOut
+     * @description One metric in the evidence tree, with its share of the change above it.
+     */
+    NodeOut: {
+      /** Metric */
+      metric:
+        | (
+            | 'ctr'
+            | 'cpc'
+            | 'cpm'
+            | 'cvr'
+            | 'cpa'
+            | 'roas'
+            | 'aov'
+            | 'frequency'
+            | 'mer'
+            | 'store_aov'
+            | 'bounce_rate'
+            | 'atc_rate'
+            | 'checkout_rate'
+            | 'purchase_rate'
+            | 'web_cvr'
+          )
+        | (
+            | 'impressions'
+            | 'clicks'
+            | 'spend'
+            | 'platform_conversions'
+            | 'platform_revenue'
+            | 'store_revenue'
+            | 'store_orders'
+          )
+      /** Before */
+      before: number | null
+      /** After */
+      after: number | null
+      /** Change Pct */
+      change_pct: number | null
+      /** Share Pct */
+      share_pct: number | null
+      /** Higher Is Better */
+      higher_is_better: boolean | null
+      /**
+       * Children
+       * @default []
+       */
+      children: components['schemas']['NodeOut'][]
+    }
+    /**
+     * OpportunityDetailOut
+     * @description The four sections of UI.md §5.2, in that order, plus the signals behind them.
+     */
+    OpportunityDetailOut: {
+      summary: components['schemas']['OpportunityOut']
+      tree: components['schemas']['NodeOut'] | null
+      /** Hypotheses */
+      hypotheses: components['schemas']['HypothesisOut'][]
+      /** Alternatives */
+      alternatives: string[]
+      recommendation: components['schemas']['RecommendationOut'] | null
+      /** Signals */
+      signals: components['schemas']['SignalOut'][]
+      /**
+       * Trust
+       * @enum {string}
+       */
+      trust: 'ok' | 'warning' | 'broken'
+      /** Protected */
+      protected: boolean
+      /** Grounded */
+      grounded: boolean
+    }
+    /** OpportunityListOut */
+    OpportunityListOut: {
+      /** Opportunities */
+      opportunities: components['schemas']['OpportunityOut'][]
+    }
+    /**
+     * OpportunityOut
+     * @description A list row: priority dot, title, channel, impact, confidence and age.
+     */
+    OpportunityOut: {
+      /** Id */
+      id: number
+      /** Key */
+      key: string
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind: 'issue' | 'win'
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'open' | 'dismissed' | 'experimenting' | 'resolved'
+      /** Title */
+      title: string
+      /** Entity Level */
+      entity_level: string
+      /** Entity Key */
+      entity_key: string
+      /** Entity Name */
+      entity_name: string
+      /** Channel Id */
+      channel_id: string | null
+      window: components['schemas']['PeriodOut']
+      /**
+       * First Seen
+       * Format: date
+       */
+      first_seen: string
+      /** Primary Metric */
+      primary_metric:
+        | (
+            | 'ctr'
+            | 'cpc'
+            | 'cpm'
+            | 'cvr'
+            | 'cpa'
+            | 'roas'
+            | 'aov'
+            | 'frequency'
+            | 'mer'
+            | 'store_aov'
+            | 'bounce_rate'
+            | 'atc_rate'
+            | 'checkout_rate'
+            | 'purchase_rate'
+            | 'web_cvr'
+          )
+        | (
+            | 'impressions'
+            | 'clicks'
+            | 'spend'
+            | 'platform_conversions'
+            | 'platform_revenue'
+            | 'store_revenue'
+            | 'store_orders'
+          )
+      /** Primary Detector */
+      primary_detector: string
+      /** Current */
+      current: number | null
+      /** Baseline */
+      baseline: number | null
+      /** Change Pct */
+      change_pct: number | null
+      /** Impact */
+      impact: number
+      /** Confidence */
+      confidence: number | null
+      /** Priority */
+      priority: number | null
+      /**
+       * Band
+       * @enum {string}
+       */
+      band: 'high' | 'medium' | 'low'
+      /** Age Days */
+      age_days: number
+      /** Signal Count */
+      signal_count: number
+      /** Cause */
+      cause:
+        | (
+            | 'creative_fatigue'
+            | 'landing_page_break'
+            | 'cpc_spike'
+            | 'audience_mismatch'
+            | 'tracking_break'
+            | 'budget_overpace'
+            | 'channel_opportunity'
+            | 'conversion_drop'
+            | 'unknown'
+          )
+        | null
+      /** Cause Label */
+      cause_label: string | null
+      /** Observation */
+      observation: string | null
+      /** Diagnosis Source */
+      diagnosis_source: ('llm' | 'rules') | null
+      /** Dismissed Reason */
+      dismissed_reason: string | null
+    }
     /** PacingOut */
     PacingOut: {
       /** Budget */
@@ -526,6 +816,66 @@ export interface components {
        * Format: date
        */
       end: string
+    }
+    /** RecommendationOut */
+    RecommendationOut: {
+      /**
+       * Action
+       * @enum {string}
+       */
+      action:
+        | 'pause_creative'
+        | 'rotate_creative'
+        | 'refine_audience'
+        | 'investigate_landing_page'
+        | 'fix_tracking'
+        | 'shift_budget'
+        | 'adjust_pacing'
+      /** Rationale */
+      rationale: string
+      /** Expected Impact */
+      expected_impact: [number, number]
+      /** Confidence */
+      confidence: number
+      /**
+       * Risk
+       * @enum {string}
+       */
+      risk: 'low' | 'medium' | 'high'
+      /** Watch */
+      watch:
+        | (
+            | 'ctr'
+            | 'cpc'
+            | 'cpm'
+            | 'cvr'
+            | 'cpa'
+            | 'roas'
+            | 'aov'
+            | 'frequency'
+            | 'mer'
+            | 'store_aov'
+            | 'bounce_rate'
+            | 'atc_rate'
+            | 'checkout_rate'
+            | 'purchase_rate'
+            | 'web_cvr'
+          )
+        | (
+            | 'impressions'
+            | 'clicks'
+            | 'spend'
+            | 'platform_conversions'
+            | 'platform_revenue'
+            | 'store_revenue'
+            | 'store_orders'
+          )
+      /** Stop Condition */
+      stop_condition: string
+      /** Params */
+      params: {
+        [key: string]: string
+      }
     }
     /** RejectedRowOut */
     RejectedRowOut: {
@@ -581,6 +931,58 @@ export interface components {
       break_even_roas: number | null
       /** Target Roas Profitable */
       target_roas_profitable: boolean | null
+    }
+    /**
+     * SignalOut
+     * @description One movement behind the opportunity, as the "Signals" section lists them.
+     */
+    SignalOut: {
+      /** Id */
+      id: string
+      /** Detector */
+      detector: string
+      /** Metric */
+      metric:
+        | (
+            | 'ctr'
+            | 'cpc'
+            | 'cpm'
+            | 'cvr'
+            | 'cpa'
+            | 'roas'
+            | 'aov'
+            | 'frequency'
+            | 'mer'
+            | 'store_aov'
+            | 'bounce_rate'
+            | 'atc_rate'
+            | 'checkout_rate'
+            | 'purchase_rate'
+            | 'web_cvr'
+          )
+        | (
+            | 'impressions'
+            | 'clicks'
+            | 'spend'
+            | 'platform_conversions'
+            | 'platform_revenue'
+            | 'store_revenue'
+            | 'store_orders'
+          )
+      entity: components['schemas']['EntityOut']
+      window: components['schemas']['PeriodOut']
+      /** Current */
+      current: number | null
+      /** Baseline */
+      baseline: number | null
+      /** Change Pct */
+      change_pct: number | null
+      /** Adverse */
+      adverse: boolean
+      /** Impact */
+      impact: number
+      /** Score */
+      score: number
     }
     /** SourceStatusOut */
     SourceStatusOut: {
@@ -653,6 +1055,12 @@ export interface components {
       trend: components['schemas']['TrendPointOut'][]
       trust: components['schemas']['TrustOut']
       pacing: components['schemas']['PacingViewOut']
+      /** Attention */
+      attention: components['schemas']['OpportunityOut'][]
+      /** Wins */
+      wins: components['schemas']['OpportunityOut'][]
+      /** Analysing */
+      analysing: boolean
     }
     /** TrackingOut */
     TrackingOut: {
@@ -987,6 +1395,104 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['MetricsOut']
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  list_opportunities_api_v1_opportunities_get: {
+    parameters: {
+      query?: {
+        status?: ('open' | 'dismissed' | 'experimenting' | 'resolved')[] | null
+        kind?: ('issue' | 'win') | null
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['OpportunityListOut']
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  get_opportunity_api_v1_opportunities__opportunity_id__get: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        opportunity_id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['OpportunityDetailOut']
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  dismiss_opportunity_api_v1_opportunities__opportunity_id__dismiss_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        opportunity_id: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DismissIn']
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['OpportunityOut']
         }
       }
       /** @description Validation Error */

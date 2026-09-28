@@ -14,7 +14,7 @@ from mdia.agents.investigation import PURPOSE, build_investigation, investigate
 from mdia.agents.llm import get_chat_model, structured
 from mdia.agents.prompts import DIAGNOSIS_PROMPT_VERSION, DIAGNOSIS_SYSTEM, diagnosis_prompt
 from mdia.agents.schemas import LlmDiagnosis
-from mdia.domain.diagnosis import build_evidence
+from mdia.domain.evidence import build_evidence
 from mdia.models import LlmCall
 from mdia.repositories.llm_calls import LlmCallRepository
 from tests.builders import creative_fatigue

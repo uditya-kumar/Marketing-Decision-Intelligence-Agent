@@ -8,7 +8,7 @@ import pytest
 
 from mdia.agents.grounding import allowed_numbers, check, numbers_in
 from mdia.agents.schemas import LlmDiagnosis, LlmHypothesis
-from mdia.domain.diagnosis import Evidence, build_evidence
+from mdia.domain.evidence import Evidence, build_evidence
 from tests.builders import creative_fatigue
 
 if TYPE_CHECKING:

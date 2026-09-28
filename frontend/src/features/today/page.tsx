@@ -1,15 +1,18 @@
 import { Link } from 'react-router-dom'
-import { Target, Upload } from 'lucide-react'
+import { Loader, Target, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
 import { PageHeader } from '@/components/common/page-header'
+import { attentionSummary } from '@/lib/opportunities'
 import { useToday } from './api'
+import { AttentionList } from './components/attention-list'
 import { KpiStrip } from './components/kpi-strip'
 import { PacingCard } from './components/pacing-card'
 import { TrendChart } from './components/trend-chart'
 import { TrustBanner } from './components/trust-banner'
+import { WinsList } from './components/wins-list'
 import { greeting, trustAlert, weekSummary } from './text'
 
 function TodaySkeleton() {
@@ -70,9 +73,13 @@ export default function TodayPage() {
   }
 
   const trustIssue = trustAlert(data)
+  // Demo 3 opens on the count, so the header says it before the cards do.
+  const summary = [weekSummary(data), data.attention.length > 0 && attentionSummary(data.attention)]
+    .filter((part): part is string => Boolean(part))
+    .join(' ')
   return (
     <>
-      <PageHeader title={title} summary={weekSummary(data)}>
+      <PageHeader title={title} summary={summary}>
         {!data.configured && (
           <p className="text-[13px] text-ash">
             Goals aren't set yet, so there's nothing to compare against.{' '}
@@ -82,12 +89,20 @@ export default function TodayPage() {
           </p>
         )}
       </PageHeader>
+      {data.analysing && (
+        <p className="flex items-center gap-2.5 rounded-lg border border-hairline bg-bone px-5 py-3 text-[13px] text-ash">
+          <Loader className="size-3.5 animate-spin text-ember" aria-hidden />
+          Analysing new data… the numbers below are from the last completed run.
+        </p>
+      )}
       {trustIssue && <TrustBanner {...trustIssue} />}
       <KpiStrip kpis={data.kpis} />
       <TrendChart points={data.trend} />
-      {/* The left column holds Needs attention and Opportunities from Phase 5. */}
       <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-12">
-        <div />
+        <div className="flex flex-col gap-10">
+          <AttentionList rows={data.attention} />
+          <WinsList rows={data.wins} />
+        </div>
         <PacingCard pacing={data.pacing} />
       </div>
     </>
