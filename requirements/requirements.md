@@ -64,8 +64,9 @@ Real platform APIs, notifications, auth and multi-tenancy, auto-applying changes
 
 ```env
 LLM_PROVIDER=bedrock_converse        # or google_genai
-LLM_MODEL=<model-id>
+LLM_MODEL=<model-id>                 # ANTHROPIC_MODEL is accepted too
 LLM_TEMPERATURE=0
+AWS_REGION / AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY   # Bedrock
 ```
 
 `agents/llm.py` is the only file that knows about providers.

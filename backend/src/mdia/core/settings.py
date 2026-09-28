@@ -10,7 +10,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field
+from pydantic import AliasChoices, Field, SecretStr
 from pydantic import ValidationError as PydanticValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -37,12 +37,18 @@ class Settings(BaseSettings):
         default=None, description="Neon 'test' branch URL; required for integration tests"
     )
 
-    # --- LLM provider (used from Phase 8 onward; only factory.py reads these) ---
+    # --- LLM provider (used from Phase 6 onward; only agents/llm.py reads these) ---
     llm_provider: str = "bedrock_converse"
-    llm_model: str = ""
+    llm_model: str = Field(
+        default="", validation_alias=AliasChoices("llm_model", "anthropic_model")
+    )
     llm_temperature: float = 0.0
+    # pydantic-settings keeps .env values out of os.environ, so boto3 can't find these
+    # itself; agents/llm.py passes them to Bedrock explicitly.
     aws_region: str = "us-east-1"
-    google_api_key: str = ""
+    aws_access_key_id: SecretStr | None = None
+    aws_secret_access_key: SecretStr | None = None
+    google_api_key: SecretStr | None = None
 
     @property
     def sqlalchemy_url(self) -> str:
