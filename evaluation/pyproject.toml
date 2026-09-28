@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "MDIA evaluation harness — the only code that reads ground_truth.json"
 requires-python = ">=3.12,<3.13"
 # Evaluation dependencies (pandas, numpy, matplotlib, scikit-learn, httpx) are
-# added in Phase 20 when the evaluation harness is built.
+# added in Phase 5 when the evaluation harness is built.
 dependencies = []
 
 [build-system]

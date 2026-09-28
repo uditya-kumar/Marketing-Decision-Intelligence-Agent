@@ -1,19 +1,17 @@
 # MDIA — UI & User Flows
 
-Visual tokens (colour, type, spacing, radius, shadows, motion) come from `designSystem.md`. **When it exists, it overrides any visual detail here.** This doc defines structure, flows, and behaviour.
+Visual tokens (colour, type, spacing, radius, shadows, motion) come from `designSystem.md`, and **they override any visual detail here**. The layouts are in `designFile.pen` (open it with the pencil MCP). This doc defines structure, flows and behaviour.
 
 ---
 
 ## 1. Design Principles
 
-1. **Answer first, detail on demand.** Every screen opens with the conclusion ("CPA is above your limit on Meta"); charts and tables sit one click below.
-2. **One primary action per view.** One filled button per screen/card; everything else is secondary or ghost.
-3. **Calm by default.** Neutral surfaces, generous whitespace, one type family. Colour only means status: positive, negative, warning, info.
-4. **Numbers you can trust.** Every number shows its comparison (vs last period / vs goal) and links to its source. LLM-written text is visually distinct from computed facts.
-5. **Progressive disclosure.** Card → side sheet → full page. Users never lose their place.
-6. **Plain language.** "Ads are being shown too often" before "frequency 4.7". Jargon appears as secondary text.
-7. **Keyboard friendly.** ⌘K palette, ⌘J analyst, `Esc` closes any sheet.
-8. **Not a chatbot.** Chat is a side panel, never the homepage.
+1. **Answer first, detail on demand.** Every screen opens with the conclusion ("CPA is above your limit on Meta"). Charts and tables sit below it.
+2. **One primary action per view.** Each screen or card has one filled button; everything else is secondary or ghost.
+3. **Calm by default.** Neutral surfaces, generous whitespace. Colour only means status: positive, negative, warning, info.
+4. **Numbers you can trust.** Every number shows its comparison (vs last period or vs goal). LLM-written text is visually distinct from computed facts.
+5. **Plain language.** Write "Ads are being shown too often" before "frequency 4.7". Jargon goes in secondary text.
+6. **Not a chatbot.** There is no chat in the core product.
 
 ---
 
@@ -22,19 +20,18 @@ Visual tokens (colour, type, spacing, radius, shadows, motion) come from `design
 ```
 Sidebar
 ├── Today            ← home: what needs me now
-├── Opportunities    ← all issues & wins, filterable
-├── Plan             ← simulator + budget planner
+├── Opportunities    ← all issues & wins → detail page
 ├── Experiments      ← awaiting approval · running · completed
-├── Reports          ← weekly founder / team reports
-├── Decisions        ← memory timeline, searchable
+├── Decisions        ← decision log
+├── Reports          ← weekly report
 │
-├── Data             ← uploads, sources, trust status
-└── Settings         ← profile, goals, budgets, calendar, guardrails
+├── Data             ← upload, sources, trust, run history
+└── Settings         ← margin, targets, budgets, festive windows, protected campaigns
 
-Global:  ⌘K command palette · ⌘J Ask Analyst panel · as-of date · Upload button
+Top bar: page title · as-of date · Upload button
 ```
 
-Max depth: **2 levels** (list → detail). Detail views open as side sheets from Today; full pages from their own section.
+Max depth is **2 levels** (list → detail page).
 
 ---
 
@@ -45,88 +42,51 @@ Max depth: **2 levels** (list → detail). Detail views open as side sheets from
 │ ◉ NovaWear │  Today                         Data as of 14 Oct  [Upload]│
 │            ├───────────────────────────────────────────────────────────┤
 │ ○ Today    │                                                           │
-│ ○ Opport.  │                    content (max-width ~1120px,            │
-│ ○ Plan     │                    centred, generous padding)             │
+│ ○ Opport.  │          content (max-width ~1120px, centred)             │
 │ ○ Experim. │                                                           │
-│ ○ Reports  │                                                           │
 │ ○ Decisions│                                                           │
+│ ○ Reports  │                                                           │
 │            │                                                           │
 │ ○ Data     │                                                           │
-│ ○ Settings │                                                  ┌──────┐ │
-│            │                                                  │ Ask ⌘J│ │
-│  ⌘K Search │                                                  └──────┘ │
+│ ○ Settings │                                                           │
 └────────────┴───────────────────────────────────────────────────────────┘
 ```
 
-- Sidebar: collapsible to icons; badge counts on Opportunities and Experiments (awaiting approval).
-- Top bar: page title, **as-of date** (always visible, so users know how fresh the data is), Upload.
-- Analyst: floating button → right-side panel (does not cover main content on wide screens).
+- The sidebar shows badge counts on Opportunities (open) and Experiments (awaiting approval).
+- The **as-of date** is always visible in the top bar, so users know how fresh the data is.
+- The target is desktop only.
 
 ---
 
 ## 4. Core User Flows
 
-### Flow A — First-time setup (< 5 minutes)
-
+### Flow A: First run
 ```
-Welcome → 1. Business → 2. Goals & budget → 3. Upload data → Analysing… → Today
-```
-
-| Step | Fields | Notes |
-|---|---|---|
-| 1. Business | Name, currency, timezone | Prefilled ₹ / IST |
-| 2. Goals & budget | Gross margin %, target CPA, target ROAS, monthly budget per channel | Shows live "Break-even ROAS: 2.5×" as margin is typed |
-| 3. Upload | Drag-drop multiple CSVs | Auto-detects source per file ("Meta Ads ✓"); shows missing sources |
-| Analysing | Step list with ticks: Validating → Computing KPIs → Checking data → Finding signals → Investigating | Real pipeline progress |
-
-Calendar and guardrails are optional; set later in Settings, with a gentle prompt on Today.
-
-### Flow B — Monday morning check (daily, 2 minutes)
-
-```
-Today → read summary → [trust banner?] → Needs attention card → Review
-      → Opportunity sheet → Create experiment / Dismiss → back to Today
+Today (empty state) → "Set your goals" → Settings → "Upload data" → Data
+      → files detected ✓ → "Analysing…" → Today
 ```
 
-### Flow C — "Why is ROAS down?" (founder asks)
-
+### Flow B: Monday morning check
 ```
-Today KPI "ROAS ↓" → click → Opportunity sheet → Evidence tree
-      → Copy link / Ask Analyst "explain simply"
+Today → [trust banner?] → Needs attention card → Review → Opportunity page
+      → Create experiment / Dismiss (reason) → back to Today
 ```
 
-### Flow D — Act on a recommendation
-
+### Flow C: Act on a recommendation
 ```
-Recommendation card → Simulate (if budget action) → Create experiment
-      → review auto-filled hypothesis/metric/target/duration → Approve
+Opportunity → Create experiment → review the auto-filled form → Approve
       → Experiments: Running (day 0/7)
 ```
 
-### Flow E — Close the loop (next week)
-
+### Flow D: Close the loop (next week)
 ```
-Upload new CSVs → pipeline runs → Today: "Experiment completed — Worked ✓"
-      → Experiment detail (before vs after) → saved to Decisions
-```
-
-### Flow F — Monthly / festive planning
-
-```
-Plan → set total budget + goal → "Suggest best split" → adjust sliders
-      → compare current vs proposed → Save plan (updates budgets for pacing)
+Upload the next batch → analysis runs → Today: "Experiment completed: Worked ✓"
+      → Experiments / Decisions show the before → after
 ```
 
-### Flow G — Friday report
-
+### Flow E: Friday report
 ```
-Reports → Generate this week → toggle Founder / Team → Copy / Export
-```
-
-### Flow H — "Why did we pause that?"
-
-```
-⌘K "pause kurta" → Decision → full chain: signal → hypothesis → decision → outcome
+Reports → Generate this week → Copy as Markdown / Print
 ```
 
 ---
@@ -136,10 +96,10 @@ Reports → Generate this week → toggle Founder / Team → Copy / Export
 ### 5.1 Today (home)
 
 ```
-Good morning, NovaWear                                   Data as of Tue, 14 Oct
+NovaWear                                                  Data as of Tue, 14 Oct
 
 ┌ ⚠ Meta tracking looks broken since 12 Oct. Purchases −82 %, store orders normal.
-│   Performance advice for Meta is paused until fixed.            [See details]
+│   Performance advice for Meta is paused until it's fixed.       [See details]
 └──────────────────────────────────────────────────────────────────────────────
 
  Revenue        Spend         ROAS          MER           CPA
@@ -150,25 +110,26 @@ Good morning, NovaWear                                   Data as of Tue, 14 Oct
  Needs attention · 2
  ┌──────────────────────────────────────────────────────────────┐
  │ HIGH  Meta "Kurta Sale" costs more per sale                  │
- │ CPA ₹610 — above your ₹500 limit. Likely: ads shown too often│
+ │ CPA ₹610, above your ₹500 limit. Likely: ads shown too often │
  │ Confidence ●●●●○  · 4 signals                                │
  │                                           [Review]  Dismiss  │
  └──────────────────────────────────────────────────────────────┘
 
  Opportunities · 1                         Budget this month
  ┌───────────────────────────────┐         ┌───────────────────────────────┐
- │ Google Search can take ~₹8K   │         │ 62% spent · 45% of month      │
- │ more at similar CPA [Simulate]│         │ ▓▓▓▓▓▓▓▓░░░░  Over pace       │
+ │ Google Search is converting   │         │ 62% spent · 45% of month      │
+ │ below target CPA   [Review]   │         │ ▓▓▓▓▓▓▓▓░░░░  Over pace       │
  └───────────────────────────────┘         │ Suggested: ₹11K/day (now ₹16K)│
                                            └───────────────────────────────┘
  Experiments
- Creative rotation · Day 4/7 · CPA ₹590 → ₹512 so far
- 1 awaiting approval  →
+ Creative rotation · Day 4/7 · 1 awaiting approval →
 ```
 
-Order is fixed: **Trust → KPIs → Needs attention → Opportunities + Pacing → Experiments.** If nothing needs attention: a calm "All clear. Nothing needs you today." state.
+The order is fixed: **Trust → KPIs → Needs attention → Opportunities + Pacing → Experiments.**
+- If nothing needs attention, show a calm "All clear. Nothing needs you today."
+- While an analysis is running, show "Analysing new data…" and keep the previous numbers visible.
 
-### 5.2 Opportunity (side sheet from Today, full page from Opportunities)
+### 5.2 Opportunity (detail page)
 
 ```
 ← Meta "Kurta Sale" costs more per sale                      HIGH · ●●●●○
@@ -176,8 +137,7 @@ Order is fixed: **Trust → KPIs → Needs attention → Opportunities + Pacing 
  WHAT HAPPENED (computed)
  CPA rose 45% (₹420 → ₹610) over 7 days while spend rose 18%.
 
- WHY — EVIDENCE (computed)
- [ Evidence tree ]
+ WHY: EVIDENCE (computed)
    CPA ▲45%
     ├─ CPC ▲4%   · 9% of change
     └─ CVR ▼28%  · 91% of change
@@ -188,75 +148,48 @@ Order is fixed: **Trust → KPIs → Needs attention → Opportunities + Pacing 
  Other possibilities: audience competition (less likely: CPC barely moved).
 
  RECOMMENDED
- Replace Creative A with Creative C in the same audience.
- Expected: CPA ₹510–₹545 · Risk: Creative C has limited history
- Watch: CPA after 5,000 impressions · Stop if CPA > ₹650
-                                  [Create experiment]  Simulate  Dismiss
+ Rotate in a new creative in the same audience.
+ Expected: CPA ₹510–₹545 · Risk: new creative has no history
+ Watch: CPA · Stop if CPA > ₹650
+                                           [Create experiment]  Dismiss
 
- SIMILAR PAST DECISIONS
- Aug · Creative rotation on "Denim" → Worked (CPA −12%)
-
- ▸ Charts  ▸ Raw signals (4)
+ ▸ Charts  ▸ Signals (4)
 ```
 
-- Sections always in this order: **What happened → Why → Likely cause → Recommended → History.**
-- Computed sections and AI sections have distinct labels; AI sections show a "grounded ✓" marker.
-- Dismiss asks for a short reason (feeds Decisions).
+- The sections always appear in this order: **What happened → Why → Likely cause → Recommended.**
+- Computed and AI sections have distinct labels. The AI section shows "grounded ✓", or "Rule-based" when the fallback was used.
+- The evidence tree is an indented list, not a graph canvas.
+- Dismiss asks for a short reason, which goes to Decisions.
 
 ### 5.3 Opportunities (list)
 
-Filters as segmented control: **All · Issues · Wins · Dismissed**. Rows: priority dot, title, channel, ₹ impact, confidence, age. Click → full page.
+A segmented control filters the list: **All · Issues · Wins · Dismissed**. Each row shows a priority dot, title, channel, ₹ impact, confidence and age, and clicking it opens the detail page.
 
-### 5.4 Plan
-
-```
- Total monthly budget  [ ₹6,00,000 ]   Goal  [ ROAS ≥ 3.5 ]   [Suggest best split]
-
- Channel      Current     Proposed                 Projected CPA   ROAS
- Google       ₹2.4L       ───────●────  ₹2.9L      ₹360            4.1×
- Meta         ₹2.0L       ─────●──────  ₹1.8L      ₹470            3.2×
- Instagram    ₹1.0L       ───●────────  ₹0.8L      ₹590            2.4×
- Email        ₹0.6L       ──●─────────  ₹0.5L      ₹120            9.0×
-
- ┌ Current ──────────────┐  ┌ Proposed ─────────────┐
- │ 1,240 orders · 3.3×   │  │ 1,310 orders · 3.6×   │  +5.6% (range +2–9%)
- └───────────────────────┘  └───────────────────────┘
-                                                   Reset   [Save as plan]
-```
-
-Saturation hint on each slider ("returns flatten above ₹2.6L"). Guardrail limits shown as slider bounds.
-
-### 5.5 Experiments
+### 5.4 Experiments
 
 Tabs: **Awaiting approval · Running · Completed.**
-- Awaiting: auto-filled form (hypothesis, action, metric, baseline, target, duration), then Approve / Edit / Reject (reason).
-- Running: progress bar (day X/Y), metric so far vs baseline, sparkline.
-- Completed: verdict chip (Worked / Didn't work / Inconclusive) with before → after and a link to the decision.
+- **Awaiting approval:** the auto-filled form (hypothesis, action, metric, baseline, target, duration) with Approve and Reject (reason).
+- **Running:** a progress bar (day X/Y) and the metric so far vs the baseline.
+- **Completed:** a verdict chip (Worked / Didn't work / Inconclusive) with before → after.
+
+### 5.5 Decisions
+
+A timeline grouped by month. Each entry shows the date, decision (approved / rejected / dismissed), reason and outcome chip, and links to its opportunity and experiment.
 
 ### 5.6 Reports
 
-Week picker, then **Founder | Team** toggle, then the document view (serif-free, print-friendly). Actions: Copy, Export Markdown, Print/PDF. Past reports in a left list.
+A week picker and a "Generate" button, above a document view: the founder summary (5 lines) on top and the team detail below. Actions are Copy as Markdown and Print. Past reports appear in a list.
 
-### 5.7 Decisions
+### 5.7 Data
 
-Search bar + timeline grouped by month. Each entry: date, action, who decided, outcome chip. Detail shows the full chain as a vertical stepper: Signal → Hypothesis → Recommendation → Decision → Outcome.
+- An upload zone (drag-drop, multiple files); each file shows its detected source and accepted/rejected row counts.
+- A sources table: source, date range, rows, trust badge.
+- Run history, with rejected rows you can expand.
+- A "Download CSV templates" link.
 
-### 5.8 Data
+### 5.8 Settings
 
-- Upload zone (drag-drop, multiple files), each file shows the detected source and row counts.
-- Sources table: source, last date, rows, trust status badge.
-- Run history with expandable rejected rows.
-- "Download CSV templates" link.
-
-### 5.9 Settings
-
-Single page with left sub-nav: Profile · Goals & economics · Budgets · Calendar · Guardrails. Autosave with a subtle "Saved" indicator.
-
-### 5.10 Ask Analyst panel
-
-- Right panel, 400px. Suggested prompts based on current page ("Explain this opportunity simply").
-- Shows tool steps as small chips ("Queried Meta CPA · 7d"). Citations are clickable and open the sheet.
-- Answers never replace UI: they link to it.
+A single form with sections for Business & economics (shows the live "Break-even ROAS: 2.5×"), Targets, Monthly budgets, Festive windows and Protected campaigns. One Save button.
 
 ---
 
@@ -264,37 +197,32 @@ Single page with left sub-nav: Profile · Goals & economics · Budgets · Calend
 
 | Pattern | Use |
 |---|---|
-| **KpiCard** | Value, delta vs period, goal marker, sparkline on hover |
-| **Delta** | ▲▼ + % and colour by *goodness*, not direction (CPA ▲ = negative) |
-| **ConfidenceMeter** | 5 dots + % on hover; tooltip explains factors |
+| **KpiCard** | Value, delta vs period, goal marker |
+| **Delta** | ▲▼ + %, coloured by *goodness*, not direction (CPA ▲ is negative) |
+| **ConfidenceMeter** | 5 dots, with % on hover |
 | **TrustBadge** | ok / warning / broken |
 | **PriorityDot** | high / medium / low |
-| **AiBlock** | Labelled section for LLM text with grounded marker |
-| **Sheet** | Right side sheet for detail from lists/Today |
+| **AiBlock** | Labelled section for LLM text, with a grounded or rule-based marker |
 | **EmptyState** | Icon + one sentence + one action |
-| **Stepper** | Pipeline progress, decision chains |
 
-Formatting: ₹ with Indian grouping (₹6,00,000 · ₹1.9L · ₹2.4Cr), percentages with one decimal at most, dates like "Tue, 14 Oct".
+Formatting: ₹ with Indian grouping (₹6,00,000 · ₹1.9L · ₹2.4Cr), percentages with at most one decimal, and dates like "Tue, 14 Oct".
 
 ---
 
 ## 7. States Checklist (every screen)
 
-- [ ] **Empty:** explains what will appear + one action (e.g. "Upload data to see your first insights").
-- [ ] **Loading:** skeletons matching final layout (no spinners on full pages).
-- [ ] **Pipeline running:** inline progress; stale data still visible with "Updating…".
-- [ ] **Error:** plain message + retry; LLM failure shows rule-based result, labelled.
-- [ ] **Low trust:** trust banner and muted affected numbers.
-- [ ] **All clear:** a positive, calm message instead of empty lists.
+- [ ] **Empty:** say what will appear, with one action (e.g. "Upload data to see your first insights").
+- [ ] **Loading:** skeletons that match the final layout.
+- [ ] **Error:** a plain message + retry. An LLM failure shows the rule-based result, labelled as such.
+- [ ] **Low trust:** the trust banner, with affected numbers muted.
+- [ ] **All clear:** a calm positive message instead of empty lists.
 
 ---
 
-## 8. Motion & Feedback
+## 8. Motion & Accessibility
 
-Subtle, fast (150–250 ms), ease-out; sheets slide, cards fade. No bouncing, no confetti. Optimistic updates for dismiss/approve with undo toast. Exact values from `designSystem.md`.
-
----
-
-## 9. Accessibility
-
-WCAG AA contrast; status never by colour alone (icon + text); full keyboard navigation; visible focus rings; charts have text summaries.
+- Motion is subtle, fast (150–250 ms) and ease-out; the exact values are in `designSystem.md`.
+- WCAG AA contrast.
+- Status is never shown by colour alone (always icon + text).
+- Focus rings are visible.
+- Charts have a one-line text summary.

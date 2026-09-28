@@ -12,6 +12,7 @@ dependencies = [
     "psycopg[binary]>=3.2",
     "alembic>=1.14",
     "structlog>=24.4",
+    "python-multipart>=0.0.20",
 ]
 
 [project.optional-dependencies]
@@ -53,6 +54,11 @@ select = [
 ignore = [
     "B008", # FastAPI dependency injection uses function calls in defaults
 ]
+allowed-confusables = ["×"]
+
+[tool.ruff.lint.flake8-type-checking]
+# SQLAlchemy and Pydantic resolve annotations at runtime, so their imports must stay real.
+runtime-evaluated-base-classes = ["mdia.db.base.Base", "pydantic.BaseModel"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["N802", "N803"]
@@ -76,5 +82,4 @@ asyncio_mode = "auto"
 markers = [
     "unit: pure domain / fast unit tests (no I/O)",
     "integration: hits the Neon 'test' branch; requires DATABASE_URL_TEST",
-    "agents: exercises LangGraph graphs with a fake LLM",
 ]

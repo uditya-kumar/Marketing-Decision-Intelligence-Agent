@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { MessageSquare, Upload } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { primaryNav, secondaryNav, type NavItem } from './nav-items'
@@ -7,7 +7,6 @@ import { primaryNav, secondaryNav, type NavItem } from './nav-items'
 const allNav: NavItem[] = [...primaryNav, ...secondaryNav]
 
 function pageTitle(pathname: string): string {
-  if (pathname.startsWith('/onboarding')) return 'Welcome'
   const match = allNav.find((item) =>
     item.to === '/' ? pathname === '/' : pathname.startsWith(item.to),
   )
@@ -51,7 +50,6 @@ export default function AppLayout() {
             <SidebarLink key={item.to} item={item} />
           ))}
         </nav>
-        <div className="px-3 pt-4 text-xs text-muted-foreground">⌘K Search</div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -72,11 +70,6 @@ export default function AppLayout() {
           </div>
         </main>
       </div>
-
-      <Button size="sm" className="fixed right-6 bottom-6 shadow-lg" aria-label="Ask Analyst">
-        <MessageSquare className="size-4" aria-hidden />
-        Ask ⌘J
-      </Button>
     </div>
   )
 }

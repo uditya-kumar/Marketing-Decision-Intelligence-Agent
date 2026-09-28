@@ -1,13 +1,4 @@
-import {
-  Database,
-  FileText,
-  FlaskConical,
-  History,
-  LayoutList,
-  Settings,
-  Sun,
-  SlidersHorizontal,
-} from 'lucide-react'
+import { Database, FileText, FlaskConical, History, LayoutList, Settings, Sun } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export type NavItem = {
@@ -20,10 +11,9 @@ export type NavItem = {
 export const primaryNav: NavItem[] = [
   { label: 'Today', to: '/', icon: Sun },
   { label: 'Opportunities', to: '/opportunities', icon: LayoutList },
-  { label: 'Plan', to: '/plan', icon: SlidersHorizontal },
   { label: 'Experiments', to: '/experiments', icon: FlaskConical },
-  { label: 'Reports', to: '/reports', icon: FileText },
   { label: 'Decisions', to: '/decisions', icon: History },
+  { label: 'Reports', to: '/reports', icon: FileText },
 ]
 
 /** Secondary navigation, visually separated below the primary group. */

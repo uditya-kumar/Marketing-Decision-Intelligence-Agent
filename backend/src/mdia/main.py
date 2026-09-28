@@ -12,8 +12,8 @@ import structlog
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from mdia.api.v1.router import api_router
-from mdia.api.v1.routes import health
+from mdia.api.router import api_router
+from mdia.api.routes import health
 from mdia.core.errors import MdiaError, NotFoundError, ValidationError
 from mdia.core.logging import configure_logging
 from mdia.core.settings import get_settings

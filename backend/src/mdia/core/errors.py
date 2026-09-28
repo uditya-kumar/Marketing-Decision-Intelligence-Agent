@@ -24,5 +24,5 @@ class ValidationError(MdiaError):
     """Input failed a domain-level validation rule."""
 
 
-class TrustGateError(MdiaError):
-    """An action was blocked because a data source is not trustworthy."""
+class UnrecognisedFileError(ValidationError):
+    """An uploaded file could not be read or matched to any source template."""

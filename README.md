@@ -1,14 +1,14 @@
 # MDIA — Marketing Decision Intelligence Agent
 
-A decision-intelligence system for marketing teams. Not a chatbot — chat is a secondary side panel.
+A decision-intelligence system for marketing teams (final-semester capstone). Not a chatbot.
 
 ```
-CSV exports → Trusted KPIs → Goal-aware signals → Evidence-backed hypotheses
-            → Recommendations → Experiments → Outcomes → Decision memory
+CSV exports → Trusted KPIs → Goal-aware signals → Evidence-backed diagnosis
+            → Recommendation → Experiment → Outcome → Decision log
 ```
 
-**Deterministic first:** metrics, detection, decomposition, trust checks, pacing, confidence,
-simulation and experiment evaluation are code. The LLM only reasons over verified evidence and
+**Deterministic first:** metrics, detection, decomposition, trust checks, pacing, confidence
+and experiment verdicts are code. The LLM only reasons over verified evidence and
 writes narrative — it never produces a number shown to users.
 
 ## Packages

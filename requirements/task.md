@@ -1,374 +1,193 @@
 # MDIA — Task Breakdown
 
-Progressive order: each phase builds on the previous one and ends in something demoable.
-Tasks are small (≈ 0.5–1 day). Tick `[x]` when **Done when** passes. Refs → `requirements.md`, `UI.md`.
+This is a capstone-sized plan. Each phase builds on the previous one and ends with something you can demo.
+Tasks are small (about 0.5–1 day each). Tick `[x]` when **Done when** passes. Refs → `requirements.md`, `UI.md`.
+
+**Frontend tasks:** open `requirements/designFile.pen` with the pencil MCP first, and use only the tokens in `designSystem.md`.
+Every screen gets its empty, loading and error states when it is built, not in a later polish pass.
 
 ---
 
-## Phase 0 — Foundation & Tooling
+## Phase 0 — Foundation & Tooling ✅
 
-- [x] **0.1** Git init, `.gitignore` (Python, Node, `.env`, `generator/output/`), `README.md`.
-  Done when: first commit exists.
-- [x] **0.2** Folder skeleton per requirements §10.
-  Done when: tree matches §10.
-- [x] **0.3** `backend/`: `uv init`; FastAPI, Uvicorn, Pydantic v2, pydantic-settings; Ruff + mypy config.
-  Done when: `uv run ruff check` and `uv run mypy src` pass.
-- [x] **0.4** `core/settings.py` + `.env.example` (DB URLs, LLM vars).
-  Done when: missing env fails fast with a clear message.
+- [x] **0.1** Git init, `.gitignore`, `README.md`.
+- [x] **0.2** Folder skeleton.
+- [x] **0.3** `backend/` with uv, FastAPI, Pydantic v2, Ruff + mypy.
+- [x] **0.4** `core/settings.py` + `.env.example`; missing env fails fast.
 - [x] **0.5** App factory + `GET /health`; structured logging.
-  Done when: `/health` returns 200.
-- [x] **0.6** Neon project + branches `main` / `dev` / `test`; URLs in `.env`.
-  Done when: `/health` reports DB ok on `dev`.
-- [x] **0.7** SQLAlchemy engine/session + Alembic init.
-  Done when: empty migration applies on `dev`.
-- [x] **0.8** pytest (unit / integration / agents markers; integration on `test` branch).
-  Done when: sample test per folder passes.
-- [x] **0.9** `npm create vite@latest frontend` → React + TypeScript + React Compiler.
-  Done when: `npm run dev` serves starter.
-- [x] **0.10** Tailwind v4 (`@tailwindcss/vite`), `@/` alias, `npx shadcn@latest init`.
-  Done when: shadcn `Button` renders.
-- [x] **0.11** React Router, TanStack Query, Zod; `app/` with providers + layout shell (sidebar, top bar) per `UI.md §3`.
-  Done when: all sidebar routes navigate to placeholder pages.
+- [x] **0.6** Neon project + branches `main` / `dev` / `test`.
+- [x] **0.7** SQLAlchemy engine/session + Alembic.
+- [x] **0.8** pytest (`integration` marker runs on the `test` branch).
+- [x] **0.9** Vite + React + TypeScript + React Compiler.
+- [x] **0.10** Tailwind v4, `@/` alias, shadcn.
+- [x] **0.11** React Router, TanStack Query; layout shell.
 - [x] **0.12** pre-commit (Ruff, mypy, ESLint, Prettier).
-  Done when: `pre-commit run --all-files` passes.
 
 ---
 
-## Phase 1 — Synthetic Data Generator — FR-2
+## Phase 1 — Synthetic Data Generator (FR-2) ✅
 
-- [x] **1.1** `generator/` uv package; `world.yaml` (NovaWear channels, campaigns, ad sets, creatives, segments).
-  Done when: config loads into typed models.
-- [x] **1.2** Seeded demand model with weekly seasonality + noise.
-  Done when: same seed ⇒ identical output (test).
-- [x] **1.3** Spend → impressions → clicks → conversions → revenue chain per ad set.
-  Done when: KPIs in realistic ranges (test).
-- [x] **1.4** Diminishing returns (Hill) per channel.
-  Done when: 2× spend < 2× conversions (test).
-- [x] **1.5** Frequency-driven creative fatigue.
-  Done when: CTR decay visible in a plot script.
-- [x] **1.6** Festive calendar multipliers (Diwali, EOSS).
-  Done when: spikes on configured dates.
-- [x] **1.7** Web funnel + store orders linked to ad traffic; platform conversions ≠ store orders by a realistic attribution ratio.
-  Done when: store orders reconcile within tolerance.
-- [x] **1.8** Scenario framework + `ground_truth.json` recorder.
-  Done when: a no-op scenario writes an entry.
-- [x] **1.9** Scenarios: `creative_fatigue`, `audience_mismatch`, `landing_page_break`.
-  Done when: each produces the expected pattern (test).
-- [x] **1.10** Scenarios: `cpc_spike`, `channel_opportunity`, `tracking_break`, `budget_overpace`.
-  Done when: same.
-- [x] **1.11** Exporters in platform shapes: `google_ads.csv`, `meta_ads.csv`, `web_analytics.csv`, `store_orders.csv`.
-  Done when: column names resemble real exports.
-- [x] **1.12** CLI: `novawear-sim backfill --days 180 --seed 42` and `batch --from <date> --days 7`.
-  Done when: both commands write CSVs + ground truth.
-- [x] **1.13** `scenarios.yaml` evaluation schedule (~50 events + no-issue windows) and a short **demo** schedule.
-  Done when: both schedules generate.
+- [x] **1.1–1.7** NovaWear world, seeded demand, the spend → revenue chain, saturation, fatigue, festive calendar, and web + store data that reconcile.
+- [x] **1.8–1.10** Scenario framework, `ground_truth.json`, and all seven scenarios.
+- [x] **1.11–1.13** Platform-shaped exporters, the `backfill` / `batch` CLI, and evaluation + demo schedules.
 
 ---
 
-## Phase 2 — Data Model & Ingestion — FR-3
+## Phase 2 — Data Model & Ingestion (FR-3)
 
-- [ ] **2.1** ORM + migration: dims, `fact_ad_daily`, `fact_web_daily`, `fact_store_daily`, `ingestion_runs`.
-  Done when: `alembic upgrade head` on `dev`.
-- [ ] **2.2** Repositories with idempotent bulk upsert.
-  Done when: same file twice ⇒ same row counts (integration test).
-- [ ] **2.3** Source templates (`ingestion/templates/`) + auto-detect source from headers.
+- [x] **2.1** ORM + migration: dims, `fact_ad_daily`, `fact_web_daily`, `fact_store_daily`, `ingestion_runs`.
+  Done when: `alembic upgrade head` succeeds on `dev`.
+- [x] **2.2** Idempotent bulk upsert in the repositories.
+  Done when: loading the same file twice gives the same row counts (integration test).
+- [x] **2.3** Source templates (`ingestion/templates.py`) + detecting the source from headers.
   Done when: each generator CSV is recognised.
-- [ ] **2.4** `Connector` base + `CsvConnector` with row validation and rejected-row report.
-  Done when: malformed rows reported, valid rows loaded.
-- [ ] **2.5** `IngestionService` + `POST /ingestion/upload`, `GET /ingestion/runs`, `GET /ingestion/templates`; as-of date computed.
-  Done when: 180-day backfill loads via API.
-- [ ] **2.6** Guard test: no backend code path references `ground_truth`.
-  Done when: test passes.
+- [x] **2.4** CSV reader with row validation and a rejected-row report.
+  Done when: malformed rows are reported and valid rows are loaded.
+- [ ] **2.5** `IngestionService` + `POST /ingestion/upload`, `GET /ingestion/runs`, `GET /ingestion/status`, `GET /ingestion/templates`; as-of date computed.
+  Done when: the 180-day backfill loads via the API (integration test).
+- [x] **2.6** Guard test: no backend code references `ground_truth`.
+  Done when: the test passes.
 
 ---
 
-## Phase 3 — Business Profile & Goals — FR-1
+## Phase 3 — Settings, KPIs & Today v1 (FR-1, FR-4)
 
-- [ ] **3.1** Tables + migration: `business_profile`, `goals`, `budget_plans`, `calendar_events`, `guardrails`.
-  Done when: migration applied.
-- [ ] **3.2** `domain/goals/`: break-even ROAS, contribution margin, goal status (`ahead | on_track | behind`).
+- [ ] **3.1** `settings` table (a single row: margin, targets, monthly budget per channel, festive windows, protected campaigns) + `GET/PUT /settings`.
+  Done when: values persist; invalid values (margin ≤ 0, negative budget) give a 422.
+- [ ] **3.2** `domain/goals.py`: break-even ROAS and goal status (`ahead | on_track | behind`).
   Done when: unit tests pass.
-- [ ] **3.3** `/settings/*` endpoints with validation.
-  Done when: CRUD works via OpenAPI docs.
-- [ ] **3.4** Generate TS types from OpenAPI → `types/api.ts`; `lib/api-client.ts`, `lib/format.ts` (₹ lakh/crore, %, deltas).
-  Done when: frontend compiles against generated types.
-- [ ] **3.5** Settings page (Profile, Goals, Budgets, Calendar, Guardrails sections) per `UI.md`.
+- [ ] **3.3** `domain/kpi.py`: ratio KPIs from base measures (CTR, CPC, CPM, CVR, CPA, ROAS, AOV, frequency, MER).
+  Done when: Hypothesis property tests pass (no division by zero; the ratio of sums, not the mean of ratios).
+- [ ] **3.4** `domain/decomposition.py`: `CPA = CPC / CVR`, `ROAS = CVR × AOV / CPC`, `CPC = CPM / (1000·CTR)`, with log-change attribution.
+  Done when: the contribution shares sum to 100 % (test).
+- [ ] **3.5** `MetricsService` (on-the-fly SQL + pandas; no aggregate table) + `GET /metrics` (KPI by channel/campaign per day, compared with the previous period) + `GET /today` (KPI summary).
+  Done when: values match a hand calculation on the fixtures.
+- [ ] **3.6** Frontend base: apply the `designSystem.md` tokens; `npm run gen:api` → `types/api.ts`; `lib/api-client.ts`; `lib/format.ts` (₹ lakh/crore, %, deltas); common `KpiCard`, `Delta`, `EmptyState`.
+  Done when: the frontend compiles against the generated types.
+- [ ] **3.7** Data page: drag-drop upload, the detected source per file, row errors, source status, run history.
+  Done when: uploading a bad CSV shows row-level errors.
+- [ ] **3.8** Settings page (one form).
   Done when: values persist and reload.
+- [ ] **3.9** Today v1: as-of date, the KPI strip (Revenue, Spend, ROAS, MER, CPA) with deltas and goal markers, a 30-day trend chart; empty state linking to Settings and Data.
+  Done when: **Demo 1** — real numbers render after uploading the backfill.
 
 ---
 
-## Phase 4 — KPI Layer & Today v1 — FR-4
+## Phase 4 — Data Trust & Pacing (FR-5, FR-7)
 
-- [ ] **4.1** `domain/kpi/registry.py` (base + blended/profit metrics).
-  Done when: Hypothesis property tests pass (no div-by-zero, correct ratio aggregation).
-- [ ] **4.2** Decomposition + log-change attribution.
-  Done when: shares sum to 100 % (test).
-- [ ] **4.3** `agg_metrics_daily` + refresh after ingestion.
-  Done when: aggregates equal on-the-fly computation (test).
-- [ ] **4.4** `MetricsService.query(metric, dims, grain, range, compare_to, vs_goal)`.
-  Done when: returns deltas and goal gaps.
-- [ ] **4.5** `GET /metrics`, `GET /today` (KPI summary only).
-  Done when: typed responses in OpenAPI.
-- [ ] **4.6** Today v1: greeting + as-of date, KPI strip (Revenue, Spend, ROAS, MER, CPA) with deltas and goal markers, trend chart.
-  Done when: **Demo 1** — real numbers render.
-
----
-
-## Phase 5 — Data Trust — FR-5
-
-- [ ] **5.1** `domain/trust/freshness.py`: missing days/sources, partial days.
-  Done when: unit tests with gaps pass.
-- [ ] **5.2** `domain/trust/tracking.py`: platform-vs-store divergence against historical ratio.
-  Done when: `tracking_break` scenario flagged; normal attribution noise not flagged.
-- [ ] **5.3** Attribution gap trend.
-  Done when: computed per channel/day.
-- [ ] **5.4** `trust_checks` table, `TrustService`, `GET /trust`; runs after ingestion.
-  Done when: statuses stored per source/day.
-- [ ] **5.5** Trust banner on Today + trust badges on Data page.
+- [ ] **4.1** `domain/trust.py`: missing days and sources, and tracking break (platform conversions vs store orders against the channel's historical ratio). Status per source: `ok | warning | broken`.
+  Done when: the `tracking_break` scenario is flagged and normal attribution noise is not.
+- [ ] **4.2** `domain/pacing.py`: month-to-date spend vs budget, run-rate projection, status, suggested daily spend.
+  Done when: unit tests pass, including month boundaries.
+- [ ] **4.3** `TrustService` / `PacingService` (computed on request; not stored) + `GET /trust`; both included in `GET /today`.
+  Done when: the `budget_overpace` scenario shows `over`.
+- [ ] **4.4** UI: trust banner on Today, trust badges on the Data page, pacing card on Today.
   Done when: **Demo 2** — "Meta tracking looks broken; don't change campaigns yet."
 
 ---
 
-## Phase 6 — Signal Engine — FR-6
+## Phase 5 — Signals & Opportunities (FR-6)
 
-- [ ] **6.1** Detector interface.
-  Done when: interface + trivial detector tested.
-- [ ] **6.2** Rolling-baseline detector with min-sample guard.
-  Done when: detects step change, ignores low volume.
-- [ ] **6.3** STL robust z-score detector; festive windows suppressed via calendar.
-  Done when: weekly/festive patterns not flagged; injected anomaly flagged.
-- [ ] **6.4** Change-point detector (ruptures).
-  Done when: fatigue onset within ±2 days.
-- [ ] **6.5** Funnel-divergence + cross-segment detectors.
-  Done when: `landing_page_break` and `audience_mismatch` produce correct types.
-- [ ] **6.6** Goal-breach detector.
-  Done when: CPA above target ⇒ goal signal.
-- [ ] **6.7** Scoring + threshold + dedup.
-  Done when: ordering matches expectation on fixtures.
-- [ ] **6.8** `signals` table, `SignalService.run(range)`; skips sources marked `broken`.
-  Done when: signals stored after upload.
-- [ ] **6.9** Evaluation v0 (`evaluation/detection.py`).
-  Done when: first precision/recall report; thresholds tuned toward §13.
+- [ ] **5.1** `domain/signals.py` detectors: rolling-baseline change (with a minimum-sample guard), goal breach, funnel-step drop, and segment divergence (age group within an ad set).
+  Done when: each detector has a positive and a negative unit test.
+- [ ] **5.2** Scoring (`|Δ| × ₹ impact`), a threshold, and suppression in festive windows and for `broken` sources.
+  Done when: festive spikes and tracking-broken channels produce no performance signals.
+- [ ] **5.3** `domain/opportunities.py`: group signals by entity + window into opportunities, with a stable key for dedup.
+  Done when: one injected scenario gives one opportunity.
+- [ ] **5.4** `analysis_runs` + `opportunities` tables (signals, evidence, diagnosis and recommendation as JSONB); `AnalysisService.run()` runs as a background task after each upload; `GET /analysis/status`.
+  Done when: uploading the backfill stores opportunities and the status goes `running → done`.
+- [ ] **5.5** Evaluation v0 (`evaluation/`): upload the evaluation schedule, then compute detection precision/recall against `ground_truth.json`.
+  Done when: the first report prints; thresholds are tuned toward §13.
 
 ---
 
-## Phase 7 — Budget Pacing — FR-7
+## Phase 6 — LLM Investigation (FR-8, FR-9)
 
-- [ ] **7.1** `domain/pacing/`: MTD vs plan, run-rate projection, status, suggested daily spend.
-  Done when: unit tests pass incl. month boundaries.
-- [ ] **7.2** `pacing_snapshots`, `GET /pacing`; pacing signals emitted.
-  Done when: `budget_overpace` scenario flagged.
-- [ ] **7.3** Pacing card on Today.
-  Done when: **Demo 3** — "62 % spent, 45 % of month gone."
-
----
-
-## Phase 8 — LLM Layer & LangGraph Basics
-
-- [ ] **8.1** Add `langgraph`, `langchain`, `langchain-aws`, `langchain-google-genai`.
-  Done when: imports resolve.
-- [ ] **8.2** `agents/llm/factory.py::get_chat_model(role)` via `init_chat_model`.
-  Done when: Bedrock smoke test responds.
-- [ ] **8.3** Structured-output helper + `llm_calls` logging.
-  Done when: toy schema returns validated object + log row.
-- [ ] **8.4** Fake chat model for tests.
+- [ ] **6.1** `agents/llm.py`: `get_chat_model()` via `init_chat_model` (Bedrock now; Gemini by env), a structured-output call at temperature 0, and `llm_calls` logging.
+  Done when: a Bedrock smoke test returns a validated object and a log row.
+- [ ] **6.2** Fake chat model for tests (`tests/fakes.py`).
   Done when: agent tests run offline.
-- [ ] **8.5** Versioned prompt registry.
-  Done when: prompt version logged.
-- [ ] **8.6** Postgres checkpointer on Neon.
-  Done when: test graph resumes by `thread_id`.
+- [ ] **6.3** `domain/diagnosis.py`: evidence tree from the decomposition + rule-based diagnosis.
+  Done when: at least 5 of the 7 scenario types get the right label.
+- [ ] **6.4** `domain/recommendations.py`: action catalogue + param validation, computed confidence (including a data-trust term), a guardrail for protected campaigns, and priority = ₹ impact × confidence.
+  Done when: confidence is monotonic (property test) and a protected campaign never gets `pause_*`.
+- [ ] **6.5** `agents/grounding.py`: every signal ID, action type and number in LLM output must exist in the evidence.
+  Done when: fabricated IDs and numbers are caught (unit tests).
+- [ ] **6.6** `agents/investigation.py` graph: `build_evidence → diagnose (LLM) → ground_check → retry ≤ 2 | rules fallback → finalize (confidence, guardrails, priority in code)`, with a `RetryPolicy` on the LLM node.
+  Done when: a "lying" fake LLM ends in the fallback; with Bedrock, a real opportunity is diagnosed.
+- [ ] **6.7** Wire the graph into `AnalysisService`, investigating the top N opportunities one after another; the pipeline still finishes if the LLM is down.
+  Done when: uploading the backfill gives diagnosed opportunities, each labelled `llm` or `rules`.
 
 ---
 
-## Phase 9 — Investigation Graph — FR-8
+## Phase 7 — Opportunity UI & Today v2
 
-- [ ] **9.1** `domain/signals/clustering.py` → opportunities.
-  Done when: one scenario ⇒ one opportunity.
-- [ ] **9.2** `opportunities`, `hypotheses` tables.
-  Done when: migration applied.
-- [ ] **9.3** `InvestigationState` with reducers.
-  Done when: typed.
-- [ ] **9.4** Nodes `load_context`, `decompose` (evidence tree).
-  Done when: fatigue case attributes CPA change to CTR/CVR.
-- [ ] **9.5** `domain/diagnosis/rules.py` rule-based diagnosis.
-  Done when: ≥ 3 scenario types labelled correctly.
-- [ ] **9.6** Node `hypothesise` (LLM, structured, `RetryPolicy`).
-  Done when: returns observation, hypotheses with evidence IDs, alternatives.
-- [ ] **9.7** `agents/guards/grounding.py`.
-  Done when: fabricated IDs/numbers caught (unit tests).
-- [ ] **9.8** `ground_check` + retry ≤ 2 → rule fallback.
-  Done when: "lying" fake LLM ends in fallback path.
-- [ ] **9.9** Compile + persist.
-  Done when: end-to-end with Bedrock on a real opportunity.
-- [ ] **9.10** `GET /opportunities[/{id}]`, dismiss.
-  Done when: detail returns observation / evidence / hypotheses separately.
-- [ ] **9.11** Opportunity page: Observation, Evidence, Hypothesis sections + charts per `UI.md`.
-  Done when: renders for each scenario type.
-- [ ] **9.12** Evidence tree (React Flow).
-  Done when: **Demo 4** — click an opportunity, see *why*.
+- [ ] **7.1** `GET /opportunities` (filter by status), `GET /opportunities/{id}`, `POST /opportunities/{id}/dismiss` (with a reason).
+  Done when: the detail returns what happened, evidence, likely cause and recommendation as separate sections.
+- [ ] **7.2** Opportunities list page (All · Issues · Wins · Dismissed).
+  Done when: the filters work.
+- [ ] **7.3** Opportunity detail page in the `UI.md §5.2` order, with the evidence tree as an indented list, an `AiBlock` with a "grounded ✓" marker, and charts.
+  Done when: it renders for every scenario type.
+- [ ] **7.4** Today v2: trust → KPIs → Needs attention → Opportunities + Pacing → Experiments; an "All clear" state; an "Analysing…" state while a run is in progress.
+  Done when: **Demo 3** — "3 things need your attention", and clicking one shows *why*.
 
 ---
 
-## Phase 10 — Recommendations — FR-9
+## Phase 8 — Experiments & Decision Log (FR-11, FR-12)
 
-- [ ] **10.1** Action catalogue + param validation.
-  Done when: invalid params rejected.
-- [ ] **10.2** Computed confidence model (incl. data-trust term).
-  Done when: monotonic property tests pass.
-- [ ] **10.3** Guardrail enforcement in code.
-  Done when: protected campaign never gets `pause_*`.
-- [ ] **10.4** `recommendations` table; nodes `score_confidence`, `recommend`, `apply_guardrails`.
-  Done when: recommendation has impact range, risk, KPI, stop condition.
-- [ ] **10.5** Priority ranking.
-  Done when: ordering follows ₹ impact × confidence.
-- [ ] **10.6** Recommendation card UI + actions (Simulate / Create experiment / Dismiss).
-  Done when: buttons wired (later features disabled until built).
+- [ ] **8.1** `experiments` + `decisions` tables; `POST /experiments` (auto-filled from an opportunity), `POST /experiments/{id}/approve|reject`, `GET /experiments`, `GET /decisions`.
+  Done when: approve, reject and dismiss each write a decision row.
+- [ ] **8.2** `domain/experiments.py`: before vs after on the primary metric, with a minimum sample → `worked | did_not_work | inconclusive`.
+  Done when: unit tests cover all three verdicts.
+- [ ] **8.3** `AnalysisService` evaluates due experiments after each upload.
+  Done when: uploading the next `batch` completes a running experiment.
+- [ ] **8.4** Experiments page (Awaiting approval · Running with day X/Y · Completed with verdict) + "Create experiment" on the opportunity page.
+  Done when: the approve → running flow works in the UI.
+- [ ] **8.5** Decisions page: a timeline of decisions, each linking to its opportunity → experiment → outcome.
+  Done when: **Demo 4** — approve → upload next week → "Worked ✓", visible in Decisions.
 
 ---
 
-## Phase 11 — Briefing Pipeline & Today v2
+## Phase 9 — Weekly Report (FR-13)
 
-- [ ] **11.1** `briefing` graph with `Send` fan-out.
-  Done when: N opportunities investigated in parallel.
-- [ ] **11.2** `pipeline/`: ingest → aggregates → trust → signals → pacing → briefing (background task).
-  Done when: upload triggers full pipeline; status visible.
-- [ ] **11.3** Pipeline status endpoint + UI progress ("Analysing 7 new days…").
-  Done when: UI updates when done.
-- [ ] **11.4** Today v2 per `UI.md`: trust banner, Needs attention, Opportunities, Pacing, Active experiments.
-  Done when: **Demo 5** — "3 things need your attention."
-
----
-
-## Phase 12 — Simulator & Planner — FR-10
-
-- [ ] **12.1** Response-curve fitting + bootstrap bands.
-  Done when: recovers generator parameters within tolerance.
-- [ ] **12.2** What-if projection.
-  Done when: held-out error within target.
-- [ ] **12.3** Planner optimiser with guardrails.
-  Done when: never all-in on one channel under saturation.
-- [ ] **12.4** `simulations` table, `POST /simulations`, `POST /simulations/plan`.
-  Done when: API returns projections.
-- [ ] **12.5** `simulate` node for budget actions.
-  Done when: budget recommendations carry a simulation.
-- [ ] **12.6** Plan page: sliders, current vs proposed, "Suggest best split".
-  Done when: **Demo 6** — move ₹10K Instagram → Google, see impact.
+- [ ] **9.1** `domain/reports.py`: weekly payload (KPIs vs goals, week-on-week, pacing, top opportunities, decisions, experiment results).
+  Done when: the payload is unit-tested against fixtures.
+- [ ] **9.2** `agents/report.py` graph: `narrate (LLM) → ground_check ⟲ → template fallback`.
+  Done when: every number in the text matches the payload.
+- [ ] **9.3** `reports` table, `POST /reports/weekly`, `GET /reports[/{id}]`.
+  Done when: past reports are listed.
+- [ ] **9.4** Reports page: week picker, a founder summary at the top and team detail below, copy as Markdown, print styles.
+  Done when: **Demo 5** — the Friday report in one click.
 
 ---
 
-## Phase 13 — Experiments (lite) — FR-11
+## Phase 10 — Evaluation (FR-16)
 
-- [ ] **13.1** `experiments`, `experiment_results`, `decisions` tables.
-  Done when: migration applied.
-- [ ] **13.2** `experiment` graph: `draft → interrupt(approval)`.
-  Done when: pause survives server restart.
-- [ ] **13.3** `POST /experiments/{id}/decision` resumes (approve / edit / reject).
-  Done when: each branch tested.
-- [ ] **13.4** `domain/experiments/evaluation.py`: before/after + min-sample → verdict.
-  Done when: unit tests for worked / did_not_work / inconclusive.
-- [ ] **13.5** Pipeline evaluates due experiments after each upload.
-  Done when: uploading the next batch completes the experiment.
-- [ ] **13.6** Experiments page: Awaiting approval, Running (day X/Y), Completed (verdict).
-  Done when: **Demo 7** — approve → upload next week → "Worked."
+- [ ] **10.1** Detection report: precision, recall, F1 and days-to-detect per scenario; false positives in no-issue windows.
+- [ ] **10.2** Diagnosis report: top-1 / top-3 accuracy, LLM vs rules.
+- [ ] **10.3** Trust report: tracking-break accuracy and whether suppression was correct.
+- [ ] **10.4** Grounding report: violation rate before and after the guard (from `llm_calls`).
+- [ ] **10.5** *(optional)* Baseline: the same CSVs given to a plain LLM prompt, scored the same way.
+- [ ] **10.6** `report.py` → tables and plots for the thesis.
+  Done when: every §13 criterion is reported with numbers.
 
 ---
 
-## Phase 14 — Decision Memory (lite) — FR-12
+## Phase 11 — Hardening & Presentation
 
-- [ ] **14.1** Chain query service.
-  Done when: one call returns signal → outcome chain.
-- [ ] **14.2** Similar-case lookup; `retrieve_memory` node wired.
-  Done when: repeated fatigue finds prior case.
-- [ ] **14.3** Decisions page (timeline + search) and "Similar past decisions" on Opportunity.
-  Done when: **Demo 8** — "Why did we pause that?" answered.
-
----
-
-## Phase 15 — Weekly Reports — FR-13
-
-- [ ] **15.1** `domain/reports/`: assemble weekly payload (KPIs vs goals, WoW, pacing, opportunities, decisions, experiments).
-  Done when: payload unit-tested against fixtures.
-- [ ] **15.2** `report` graph: narrate (Founder + Team) → ground_check ⟲.
-  Done when: every number in text matches payload.
-- [ ] **15.3** `reports` table, `POST /reports/weekly`, `GET /reports[/{id}]`.
-  Done when: history persisted.
-- [ ] **15.4** Reports page: Founder/Team toggle, copy, export Markdown, print-to-PDF styles.
-  Done when: **Demo 9** — Friday report in one click.
+- [ ] **11.1** One API error schema, toasts and error boundaries; an LLM outage shows the labelled rules result.
+- [ ] **11.2** `domain/` coverage ≥ 80 %; Vitest for `format.ts` and the key components.
+- [ ] **11.3** Demo script: seeded demo schedule + upload order for the "Monday morning" story.
+- [ ] **11.4** `docs/architecture.md` (deterministic-first, grounding guard, trust gating) + README setup/run/demo.
+- [ ] **11.5** Slides + a dress rehearsal from a clean clone.
 
 ---
 
-## Phase 16 — Analyst — FR-14
+## Stretch (only if time allows)
 
-- [ ] **16.1** Read-only tools.
-  Done when: each tool unit-tested.
-- [ ] **16.2** `analyst` ReAct graph + threads.
-  Done when: multi-turn resumes.
-- [ ] **16.3** `POST /analyst/stream` (SSE).
-  Done when: curl shows streamed tokens + tool events.
-- [ ] **16.4** Analyst side panel (⌘J) with tool-step chips and clickable citations; context-aware of current page.
-  Done when: opens from any page.
-
----
-
-## Phase 17 — Onboarding & UX Polish — `UI.md`, `designSystem.md`
-
-- [ ] **17.1** Apply `designSystem.md` tokens (colour, type, spacing, radius, motion) to Tailwind theme + shadcn.
-  Done when: all screens use tokens only (no ad-hoc values).
-- [ ] **17.2** Onboarding flow (3 steps: Business → Goals & budget → Upload data).
-  Done when: new user reaches Today in < 5 min (NFR-10).
-- [ ] **17.3** Data page: drag-drop upload, detected source, validation results, run history.
-  Done when: bad CSV shows row-level errors.
-- [ ] **17.4** Command palette (⌘K): navigate, search opportunities/decisions, quick actions.
-  Done when: every page reachable by keyboard.
-- [ ] **17.5** Empty, loading (skeleton), and error states for every screen.
-  Done when: checklist in `UI.md §7` passes.
-- [ ] **17.6** Light/dark theme, responsive down to tablet.
-  Done when: visual check passes on both.
-
----
-
-## Phase 18 — Hardening
-
-- [ ] **18.1** API error schema, toasts, error boundaries; LLM outage ⇒ rule fallback shown.
-- [ ] **18.2** Indexes / query tuning; meet NFR-6.
-- [ ] **18.3** LLM cache by input hash for eval runs.
-- [ ] **18.4** `domain/` coverage ≥ 80 %; Vitest for key components.
-
----
-
-## Phase 19 — Provider Switch: Bedrock → Gemini — NFR-4
-
-- [ ] **19.1** Gemini env + smoke test.
-- [ ] **19.2** Full agent suite on Gemini; fix only prompts/config.
-- [ ] **19.3** Gemini as default; demo end-to-end.
-
----
-
-## Phase 20 — Evaluation — FR-16
-
-- [ ] **20.1** Detection report.
-- [ ] **20.2** Diagnosis report (LLM vs rules).
-- [ ] **20.3** Trust report (tracking-break accuracy, suppression correctness) + false positives.
-- [ ] **20.4** Grounding report (pre/post guard).
-- [ ] **20.5** Provider comparison.
-- [ ] **20.6** User study (5 tasks × 3 workflows).
-- [ ] **20.7** `report.py` → thesis tables/plots.
-  Done when: all §13 criteria reported with numbers.
-
----
-
-## Phase 21 — Presentation
-
-- [ ] **21.1** Seeded demo schedule + upload order for the "Monday morning" story.
-- [ ] **21.2** `docs/architecture.md` + ADRs (LangGraph, deterministic-first, grounding guard, trust gating).
-- [ ] **21.3** README: setup, run, demo.
-- [ ] **21.4** Slides: problem → users → architecture → live demo → evaluation → "why not ChatGPT" with data.
-- [ ] **21.5** Dress rehearsal from a clean clone.
-
----
-
-## Stretch (only if time allows) — requirements §8
-
-- [ ] **S-1** Difference-in-differences with control campaign.
-- [ ] **S-2** Action-aware generator (`batch --actions actions.json`).
-- [ ] **S-3** Historical success rate in confidence model.
+- [ ] **S-1** Budget simulator: per-channel response curves + a what-if slider page.
+- [ ] **S-2** Analyst chat side panel (a ReAct agent with read-only tools).
+- [ ] **S-3** Bedrock vs Gemini comparison run through the evaluation suite.
+- [ ] **S-4** Difference-in-differences with a control campaign for experiment verdicts.
+- [ ] **S-5** Action-aware generator (`batch --actions actions.json`).
+- [ ] **S-6** Small user study (dashboard vs ChatGPT+CSV vs MDIA).
