@@ -50,7 +50,9 @@ class AnalysisRepository:
                 opportunity_count=opportunities,
                 llm_count=llm,
                 error=error,
-                finished_at=func.now(),
+                # Wall clock, not ``now()``: that returns the transaction's start time, which
+                # here is the beginning of the sweep, making every run look instant.
+                finished_at=func.clock_timestamp(),
             )
         )
 

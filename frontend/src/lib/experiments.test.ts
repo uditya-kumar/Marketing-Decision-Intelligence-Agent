@@ -79,6 +79,17 @@ describe('movementText', () => {
   it('has nothing to show when neither reading exists', () => {
     expect(movementText(experimentRow({ baseline: null, target: null }))).toBe('—')
   })
+
+  it('reads a tracking fix as a share of normal, not as a count of conversions', () => {
+    const tracking = experimentRow({
+      action: 'fix_tracking',
+      metric: 'platform_conversions',
+      baseline: 0.2017,
+      target: 1,
+    })
+
+    expect(movementText(tracking)).toBe('20% of normal → 100% of normal')
+  })
 })
 
 describe('watchLine', () => {

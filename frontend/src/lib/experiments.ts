@@ -51,12 +51,23 @@ export function progressPct(progress: NonNullable<Experiment['progress']>): numb
   return Math.min(100, (progress.day / progress.total) * 100)
 }
 
+/** A level the experiment is aiming at. A tracking break is measured as a share of what the
+ *  channel usually reports, so its levels are ratios — reading them as conversion counts
+ *  would show "0 → 1". */
+export function plannedLevel(row: Experiment, value: number | null): string {
+  if (value === null) return '—'
+  if (row.action === 'fix_tracking') return `${Math.round(value * 100)}% of normal`
+  return formatMetric(row.metric, value)
+}
+
 /** "₹610 → ₹420": where the metric was and where it went, or where it should go. */
 export function movementText(row: Experiment): string {
-  const [from, to] =
-    row.status === 'completed' ? [row.before, row.after] : [row.baseline, row.target]
-  if (from === null && to === null) return '—'
-  return `${formatMetric(row.metric, from)} → ${formatMetric(row.metric, to)}`
+  if (row.status === 'completed') {
+    if (row.before === null && row.after === null) return '—'
+    return `${formatMetric(row.metric, row.before)} → ${formatMetric(row.metric, row.after)}`
+  }
+  if (row.baseline === null && row.target === null) return '—'
+  return `${plannedLevel(row, row.baseline)} → ${plannedLevel(row, row.target)}`
 }
 
 /** "Watching CPA · 7 days from 15 Oct", the line under a running change. */

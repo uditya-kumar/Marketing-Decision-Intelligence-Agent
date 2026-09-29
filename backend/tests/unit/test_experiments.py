@@ -56,6 +56,22 @@ class TestPlan:
             " from ₹610 to ₹420 within 7 days."
         )
 
+    def test_a_tracking_fix_is_stated_as_a_share_of_normal(self) -> None:
+        # The tracking signal's levels are a ratio of what the channel usually reports, so
+        # reading them as conversions would promise a move "from 0 to 1".
+        filled = plan(
+            "fix_tracking",
+            "platform_conversions",
+            entity_name="Meta Ads",
+            current=0.2017,
+            reference=1.0,
+        )
+
+        assert filled.hypothesis == (
+            "Repairing the conversion tracking on Meta Ads should bring reported conversions"
+            " from 20% of their usual level back to normal within 7 days."
+        )
+
     def test_with_nothing_to_aim_at_it_only_promises_an_improvement(self) -> None:
         filled = plan("fix_tracking", "cpa", entity_name="Meta", current=610.0, reference=None)
 

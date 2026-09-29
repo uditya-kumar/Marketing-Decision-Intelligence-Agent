@@ -1,9 +1,8 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { actionLabel } from '@/lib/actions'
-import { formatMetric } from '@/lib/metrics'
 import { entityLine } from '@/lib/opportunities'
-import { movementText, watchLine, type Experiment } from '@/lib/experiments'
+import { movementText, plannedLevel, watchLine, type Experiment } from '@/lib/experiments'
 import { Eyebrow } from '@/components/common/section'
 
 function Fact({ label, children }: { label: string; children: ReactNode }) {
@@ -43,11 +42,11 @@ export function ExperimentCard({ experiment, children }: ExperimentCardProps) {
       </div>
       <div className="grid grid-cols-4 border-t border-hairline pt-3.5">
         <Fact label="Metric">{movementText(experiment)}</Fact>
-        <Fact label="Baseline">{formatMetric(experiment.metric, experiment.baseline)}</Fact>
+        <Fact label="Baseline">{plannedLevel(experiment, experiment.baseline)}</Fact>
         <Fact label="Target">
           {experiment.target === null
             ? 'Any improvement'
-            : formatMetric(experiment.metric, experiment.target)}
+            : plannedLevel(experiment, experiment.target)}
         </Fact>
         <Fact label="Duration">{experiment.duration_days} days</Fact>
       </div>

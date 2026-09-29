@@ -139,7 +139,8 @@ against the fresh week automatically.
 - **Reports** — click **Generate**. The latest complete week is already selected. A founder summary
   on top, team detail below, copy as Markdown, print styles. The narrative is written by the LLM
   from the computed payload and passes the same grounding check; if it fails, the templated version
-  goes out with the same numbers.
+  goes out with the same numbers. In rehearsal it came back LLM-written and grounded ✓, opening on
+  "Strong week: revenue was ₹27.61 L in the 7 days to 04 Nov 2026, rose 68% on the week before."
 
 Close on the shape of it: CSVs in, a logged decision out, and every number on the way traceable to
 code.
@@ -162,9 +163,37 @@ rule-based, with the AI block saying no AI wording was used. Restore `.env` afte
 | An upload reports rejected rows | Expected only for deliberately malformed files; the valid rows still load |
 | Numbers look greyed out in Act 1 or 2 | A source is failing a trust check — check the Data page badges; in Act 3 that is the story, earlier it is not |
 | A screen shows an error card | Retry on the card; failures from writes appear as a toast with the API's own message |
+| The report says no decisions were recorded | It counts decisions by when they were made, and the seeded data sits in the future — a decision taken during the demo is not inside the data's week. Show the chain on the Decisions page instead |
+
+## How long each step takes
+
+Measured on the rehearsal run: a clean clone against the Neon `test` branch, Bedrock as the
+provider. Nothing here is fast enough to fill silence with, so talk over it — the waits are where
+the trust and deterministic-first lines go.
+
+| Step | Time |
+|---|---|
+| `uv sync` + `npm install` on a clean clone | ~2 min |
+| Backfill upload (180 days, four files) | ~45 s |
+| First analysis on an empty database | ~50 s |
+| Each weekly upload | ~5 s |
+| Each weekly analysis | ~50 s |
+| Weekly report | ~10 s |
 
 ## Rehearsing
 
-Run it end to end from a clean clone the day before (task 11.5) — fresh `uv sync` and
-`npm install`, a wiped database, the four uploads, timed. The generator is seeded, so what you see
-in the rehearsal is what the room sees.
+Run it end to end from a clean clone the day before — fresh `uv sync` and `npm install`, a wiped
+database, the four uploads, timed. The generator is seeded, so what you see in the rehearsal is
+what the room sees.
+
+The rehearsal for this build found four things worth knowing:
+
+- A clean clone needs the dev tools from `[dependency-groups]`, which `uv sync` installs by
+  default; they used to sit in an extra that it skipped, so lint and tests failed on a fresh
+  machine.
+- Run durations on the Data page were reading under a second for runs that took the best part of a
+  minute, because the finish time came from `now()` — the transaction's start.
+- A tracking-fix experiment stated its levels as conversion counts ("from 0 to 1") when the
+  tracking signal measures a share of normal; it now reads "from 20% of their usual level".
+- Rupee amounts that look like `â‚¹` in a terminal are the console reading UTF-8 as
+  Windows-1252, not bad data. Redirect to a file and open it as UTF-8 before believing it.

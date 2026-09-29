@@ -94,10 +94,22 @@ def hypothesis(
     within = f"within {duration_days} days"
     if baseline is None or goal is None:
         return f"{opening} should improve {label(metric)} {within}."
+    if action == "fix_tracking":
+        # A tracking break is measured as a share of what the channel usually reports, not
+        # as a count, so "from 0 to 1" would be the ratio read as conversions.
+        return (
+            f"{opening} should bring {label(metric)} from {share_of_normal(baseline)}"
+            f" of their usual level back to normal {within}."
+        )
     return (
         f"{opening} should move {label(metric)} from {value_text(metric, baseline)}"
         f" to {value_text(metric, goal)} {within}."
     )
+
+
+def share_of_normal(ratio: float) -> str:
+    """A tracking break's level as a reader sees it: 0.2 of normal is 20%."""
+    return f"{ratio * 100:.0f}%"
 
 
 def plan(

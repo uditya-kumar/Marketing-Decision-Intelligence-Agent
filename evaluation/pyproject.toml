@@ -15,7 +15,8 @@ dependencies = [
 [project.scripts]
 mdia-eval = "mdia_eval.cli:app"
 
-[project.optional-dependencies]
+[dependency-groups]
+# A group, not an extra: ``uv sync`` installs it, so a fresh clone can lint and test.
 dev = [
     "ruff>=0.8",
     "mypy>=1.13",
