@@ -30,6 +30,28 @@ measures it a week later and writes the outcome down.
 - **Weekly reports** — Creates a simple founder summary plus detailed team insights, with a backup report if the AI-generated version fails validation.
 - **Testing and evaluation** — Generates realistic sample data with known scenarios to measure detection accuracy, diagnosis quality, and false alarms.
 
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center" width="50%"><b>Dashboard</b></td>
+    <td align="center" width="50%"><b>Opportunity</b></td>
+  </tr>
+  <tr>
+    <td><img width="100%" alt="Dashboard" src="https://github.com/user-attachments/assets/e4d88567-7b60-4929-921f-4da878ccf0a6" /></td>
+    <td><img width="100%" alt="Opportunity" src="https://github.com/user-attachments/assets/47b6b703-7fd9-4550-8e89-43d35435cc44" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Experiments</b></td>
+    <td align="center"><b>Report</b></td>
+  </tr>
+  <tr>
+    <td><img width="100%" alt="Experiments" src="https://github.com/user-attachments/assets/4c3d0e95-e80f-4bb0-a0e3-356c2d7e9a03" /></td>
+    <td><img width="100%" alt="Report" src="https://github.com/user-attachments/assets/165ac54f-31a4-44a2-a4fd-42bcc157e73b" /></td>
+  </tr>
+</table>
+
 ---
 ## Tech stack
 
